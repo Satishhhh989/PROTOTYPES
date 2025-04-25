@@ -1,0 +1,1230 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Oblique Projectile Motion Visualizer</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&family=Source+Code+Pro&display=swap" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.7.1/chart.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.0/es5/tex-mml-chtml.min.js"></script>
+    <style>
+        :root {
+            --primary-color: #3498db;
+            --secondary-color: #2ecc71;
+            --accent-color: #e74c3c;
+            --dark-color: #2c3e50;
+            --light-color: #ecf0f1;
+            --text-color: #333;
+            --background-color: #f9f9f9;
+            --graph-bg: #fff;
+            --canvas-bg: #e8f4f8;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Roboto', sans-serif;
+            line-height: 1.6;
+            color: var(--text-color);
+            background-color: var(--background-color);
+            padding: 0;
+            margin: 0;
+        }
+
+        header {
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            color: white;
+            text-align: center;
+            padding: 2rem 1rem;
+            margin-bottom: 2rem;
+        }
+
+        header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .subtitle {
+            font-size: 1.2rem;
+            opacity: 0.9;
+        }
+
+        .container {
+            display: flex;
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 1rem;
+            gap: 2rem;
+        }
+
+        .control-panel {
+            flex: 1;
+            max-width: 300px;
+            background: white;
+            padding: 1.5rem;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+
+        .control-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .control-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+            color: var(--dark-color);
+        }
+
+        .control-group input[type="range"] {
+            width: 100%;
+            height: 8px;
+            -webkit-appearance: none;
+            background: #ddd;
+            border-radius: 4px;
+            outline: none;
+            margin-bottom: 0.5rem;
+        }
+
+        .control-group input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 18px;
+            height: 18px;
+            background: var(--primary-color);
+            border-radius: 50%;
+            cursor: pointer;
+        }
+
+        .control-group span {
+            display: inline-block;
+            width: 50px;
+            text-align: right;
+            font-family: 'Source Code Pro', monospace;
+            background: #f0f0f0;
+            padding: 0.2rem 0.5rem;
+            border-radius: 4px;
+        }
+
+        .button-group {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            margin-top: 1.5rem;
+        }
+
+        .button-group button {
+            flex: 1 1 120px;
+            padding: 0.7rem 1rem;
+            border: none;
+            border-radius: 4px;
+            background-color: var(--primary-color);
+            color: white;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .button-group button:hover {
+            background-color: #2980b9;
+            transform: translateY(-2px);
+        }
+
+        .button-group button:active {
+            transform: translateY(0);
+        }
+
+        #pauseBtn {
+            background-color: #f39c12;
+        }
+
+        #pauseBtn:hover {
+            background-color: #e67e22;
+        }
+
+        #resetBtn {
+            background-color: #95a5a6;
+        }
+
+        #resetBtn:hover {
+            background-color: #7f8c8d;
+        }
+
+        #showEquationsBtn {
+            background-color: var(--secondary-color);
+        }
+
+        #showEquationsBtn:hover {
+            background-color: #27ae60;
+        }
+
+        .visualization-area {
+            flex: 2;
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+        }
+
+        .animation-container {
+            position: relative;
+            width: 100%;
+            height: 400px;
+            background-color: var(--canvas-bg);
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+        }
+
+        #projectileCanvas {
+            width: 100%;
+            height: 100%;
+            display: block;
+        }
+
+        .animation-overlay {
+            position: absolute;
+            bottom: 10px;
+            left: 10px;
+            background: rgba(255, 255, 255, 0.8);
+            padding: 0.8rem;
+            border-radius: 4px;
+            font-family: 'Source Code Pro', monospace;
+            font-size: 0.9rem;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .animation-overlay div {
+            margin-bottom: 0.3rem;
+        }
+
+        .graphs-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1rem;
+        }
+
+        .graph {
+            background: var(--graph-bg);
+            padding: 1rem;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            height: 280px;
+        }
+
+        .graph canvas {
+            width: 100%;
+            height: 100%;
+        }
+
+        .theory-section {
+            max-width: 1400px;
+            margin: 3rem auto;
+            padding: 0 1rem;
+        }
+
+        .theory-section h2 {
+            color: var(--dark-color);
+            margin-bottom: 1.5rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 2px solid var(--primary-color);
+        }
+
+        .theory-content {
+            background: white;
+            padding: 2rem;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+
+        .theory-content h3 {
+            color: var(--primary-color);
+            margin: 1.5rem 0 1rem;
+        }
+
+        .theory-content p, .theory-content ul {
+            margin-bottom: 1rem;
+        }
+
+        .equation-group {
+            margin-bottom: 2rem;
+            padding: 1rem;
+            background-color: #f8f9fa;
+            border-radius: 6px;
+            border-left: 4px solid var(--secondary-color);
+        }
+
+        .equation-group h4 {
+            color: var(--dark-color);
+            margin-bottom: 0.8rem;
+        }
+
+        footer {
+            text-align: center;
+            padding: 2rem 1rem;
+            background-color: var(--dark-color);
+            color: white;
+            margin-top: 3rem;
+        }
+
+        @media (max-width: 1000px) {
+            .container {
+                flex-direction: column;
+            }
+            
+            .control-panel {
+                max-width: 100%;
+            }
+            
+            .animation-container {
+                height: 350px;
+            }
+        }
+
+        @media (max-width: 600px) {
+            .graphs-container {
+                grid-template-columns: 1fr;
+            }
+            
+            header h1 {
+                font-size: 2rem;
+            }
+            
+            .theory-content {
+                padding: 1.5rem 1rem;
+            }
+        }
+        /* Add these styles at the end of the file */
+        .results-panel {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            margin-top: 1.5rem;
+        }
+
+        .results-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin: 1rem 0;
+        }
+
+        .result-item {
+            background: #f8f9fa;
+            padding: 0.8rem;
+            border-radius: 6px;
+            border-left: 3px solid var(--primary-color);
+        }
+
+        .result-label {
+            font-weight: bold;
+            color: var(--dark-color);
+            margin-bottom: 0.3rem;
+        }
+
+        .result-value {
+            font-size: 1.2rem;
+            color: var(--primary-color);
+        }
+
+        .theory-value {
+            font-size: 0.8rem;
+            color: #666;
+            margin-top: 0.2rem;
+        }
+
+        .air-resistance-note {
+            margin-top: 1rem;
+            padding: 0.8rem;
+            background: #fff8e1;
+            border-radius: 6px;
+            font-size: 0.9rem;
+        }
+
+        .click-instruction {
+            position: absolute;
+            top: 10px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(255, 255, 255, 0.8);
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+            z-index: 10;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>Oblique Projectile Motion Explorer</h1>
+        <p class="subtitle">An interactive visualization of projectile motion physics</p>
+    </header>
+
+    <div class="container">
+        <div class="control-panel">
+            <div class="control-group">
+                <label for="initialVelocity">Initial Velocity (m/s)</label>
+                <input type="range" id="initialVelocity" min="1" max="100" value="30" step="1">
+                <span id="velocityValue">30</span>
+            </div>
+            
+            <div class="control-group">
+                <label for="launchAngle">Launch Angle (degrees)</label>
+                <input type="range" id="launchAngle" min="0" max="90" value="45" step="1">
+                <span id="angleValue">45</span>
+            </div>
+            
+            <div class="control-group">
+                <label for="gravity">Gravity (m/s²)</label>
+                <input type="range" id="gravity" min="1" max="20" value="9.8" step="0.1">
+                <span id="gravityValue">9.8</span>
+            </div>
+            
+            <div class="control-group">
+                <label for="projectileMass">Projectile Mass (kg)</label>
+                <input type="range" id="projectileMass" min="0.1" max="10" value="1" step="0.1">
+                <span id="massValue">1</span>
+            </div>
+            
+            <div class="control-group">
+                <label for="airResistance">Air Resistance Coefficient</label>
+                <input type="range" id="airResistance" min="0" max="0.1" value="0" step="0.001">
+                <span id="airResistanceValue">0</span>
+            </div>
+            
+            <div class="button-group">
+                <button id="launchBtn">Launch Projectile</button>
+                <button id="pauseBtn">Pause</button>
+                <button id="resetBtn">Reset</button>
+                <button id="showEquationsBtn">Show Equations</button>
+            </div>
+        </div>
+        
+        <div class="visualization-area">
+            <div class="animation-container">
+                <canvas id="projectileCanvas"></canvas>
+                <div class="animation-overlay">
+                    <div id="timeDisplay">Time: 0.00s</div>
+                    <div id="positionDisplay">Position: (0.00, 0.00)m</div>
+                    <div id="velocityDisplay">Velocity: (0.00, 0.00)m/s</div>
+                    <div id="accelerationDisplay">Acceleration: (0.00, -9.80)m/s²</div>
+                </div>
+            </div>
+
+            <div class="results-panel" id="resultsPanel" style="display:none;">
+                <h3>Simulation Results</h3>
+                <div class="results-grid">
+                    <div class="result-item">
+                        <div class="result-label">Time of Flight:</div>
+                        <div class="result-value" id="timeResult">0.00 s</div>
+                        <div class="theory-value" id="timeTheory"></div>
+                    </div>
+                    <div class="result-item">
+                        <div class="result-label">Range:</div>
+                        <div class="result-value" id="rangeResult">0.00 m</div>
+                        <div class="theory-value" id="rangeTheory"></div>
+                    </div>
+                    <div class="result-item">
+                        <div class="result-label">Maximum Height:</div>
+                        <div class="result-value" id="heightResult">0.00 m</div>
+                        <div class="theory-value" id="heightTheory"></div>
+                    </div>
+                </div>
+                <div class="air-resistance-note" id="airResistanceNote"></div>
+            </div>
+            
+            <div class="graphs-container">
+                <div class="graph">
+                    <canvas id="positionGraph"></canvas>
+                </div>
+                <div class="graph">
+                    <canvas id="velocityGraph"></canvas>
+                </div>
+                <div class="graph">
+                    <canvas id="energyGraph"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="theory-section">
+        <h2>Physics of Oblique Projectile Motion</h2>
+        
+        <div class="theory-content">
+            <h3>Key Concepts</h3>
+            <p>Projectile motion is a form of motion experienced by an object or particle that is projected near the Earth's surface and moves along a curved path under the action of gravity only (assuming air resistance is negligible).</p>
+            
+            <div class="equations-panel" id="equationsPanel" style="display:none;">
+                <h3>Fundamental Equations</h3>
+                
+                <div class="equation-group">
+                    <h4>Horizontal Motion (x-axis)</h4>
+                    <p>\[ x(t) = v_{0x} t = v_0 \cos(\theta) t \]</p>
+                    <p>\[ v_x(t) = v_{0x} = v_0 \cos(\theta) \]</p>
+                    <p>\[ a_x(t) = 0 \]</p>
+                </div>
+                
+                <div class="equation-group">
+                    <h4>Vertical Motion (y-axis)</h4>
+                    <p>\[ y(t) = v_{0y} t - \frac{1}{2} g t^2 = v_0 \sin(\theta) t - \frac{1}{2} g t^2 \]</p>
+                    <p>\[ v_y(t) = v_{0y} - g t = v_0 \sin(\theta) - g t \]</p>
+                    <p>\[ a_y(t) = -g \]</p>
+                </div>
+                
+                <div class="equation-group">
+                    <h4>Important Results</h4>
+                    <p>Time of flight: \[ T = \frac{2 v_0 \sin(\theta)}{g} \]</p>
+                    <p>Maximum height: \[ h = \frac{v_0^2 \sin^2(\theta)}{2g} \]</p>
+                    <p>Range: \[ R = \frac{v_0^2 \sin(2\theta)}{g} \]</p>
+                </div>
+                
+                <div class="equation-group">
+                    <h4>With Air Resistance</h4>
+                    <p>The equations become more complex with air resistance (drag force):</p>
+                    <p>\[ \vec{F}_{drag} = -k \vec{v} \]</p>
+                    <p>This requires numerical solutions, which is what we're implementing in the simulation.</p>
+                </div>
+            </div>
+            
+            <h3>Energy Considerations</h3>
+            <p>Throughout the projectile's motion, energy transforms between kinetic and potential forms:</p>
+            <p>\[ E_{total} = \frac{1}{2} m v^2 + m g h \]</p>
+            <p>Without air resistance, total mechanical energy is conserved. With air resistance, energy is gradually lost to the surroundings.</p>
+            
+            <h3>Applications</h3>
+            <ul>
+                <li>Ballistics and artillery</li>
+                <li>Sports physics (throwing, shooting, etc.)</li>
+                <li>Rocket trajectory planning</li>
+                <li>Animation and game physics</li>
+            </ul>
+        </div>
+    </div>
+    
+    <footer>
+        <p>Created for Physics Education | Interactive Projectile Motion Simulator</p>
+    </footer>
+
+    <script>
+        // DOM Elements
+        const canvas = document.getElementById('projectileCanvas');
+        const ctx = canvas.getContext('2d');
+        const positionGraphCtx = document.getElementById('positionGraph').getContext('2d');
+        const velocityGraphCtx = document.getElementById('velocityGraph').getContext('2d');
+        const energyGraphCtx = document.getElementById('energyGraph').getContext('2d');
+
+        // Input elements
+        const initialVelocityInput = document.getElementById('initialVelocity');
+        const launchAngleInput = document.getElementById('launchAngle');
+        const gravityInput = document.getElementById('gravity');
+        const projectileMassInput = document.getElementById('projectileMass');
+        const airResistanceInput = document.getElementById('airResistance');
+
+        // Display elements
+        const velocityValue = document.getElementById('velocityValue');
+        const angleValue = document.getElementById('angleValue');
+        const gravityValue = document.getElementById('gravityValue');
+        const massValue = document.getElementById('massValue');
+        const airResistanceValue = document.getElementById('airResistanceValue');
+
+        // Animation control elements
+        const launchBtn = document.getElementById('launchBtn');
+        const pauseBtn = document.getElementById('pauseBtn');
+        const resetBtn = document.getElementById('resetBtn');
+        const showEquationsBtn = document.getElementById('showEquationsBtn');
+
+        // Info display elements
+        const timeDisplay = document.getElementById('timeDisplay');
+        const positionDisplay = document.getElementById('positionDisplay');
+        const velocityDisplay = document.getElementById('velocityDisplay');
+        const accelerationDisplay = document.getElementById('accelerationDisplay');
+
+        // Theory section
+        const equationsPanel = document.getElementById('equationsPanel');
+        const resultsPanel = document.getElementById('resultsPanel');
+
+        // Simulation variables
+        let animationId = null;
+        let isPaused = false;
+        let isRunning = false;
+        let time = 0;
+        let scale = 10; // Pixels per meter
+        let originX, originY;
+        let trajectory = [];
+        let groundLevel;
+
+        // Projectile parameters
+        let initialVelocity = 30;
+        let launchAngle = 45;
+        let gravity = 9.8;
+        let projectileMass = 1;
+        let airResistance = 0;
+
+        // Graph data
+        let positionChart, velocityChart, energyChart;
+        let graphData = {
+            times: [],
+            xPositions: [],
+            yPositions: [],
+            xVelocities: [],
+            yVelocities: [],
+            kineticEnergies: [],
+            potentialEnergies: [],
+            totalEnergies: []
+        };
+
+        // Initialize the application
+        function init() {
+            // Set canvas dimensions
+            resizeCanvas();
+            window.addEventListener('resize', resizeCanvas);
+            
+            // Initialize input values
+            updateInputValues();
+            
+            // Set up event listeners
+            initialVelocityInput.addEventListener('input', updateInputValues);
+            launchAngleInput.addEventListener('input', updateInputValues);
+            gravityInput.addEventListener('input', updateInputValues);
+            projectileMassInput.addEventListener('input', updateInputValues);
+            airResistanceInput.addEventListener('input', updateInputValues);
+            
+            launchBtn.addEventListener('click', startSimulation);
+            pauseBtn.addEventListener('click', togglePause);
+            resetBtn.addEventListener('click', resetSimulation);
+            showEquationsBtn.addEventListener('click', toggleEquations);
+            
+            // Initialize graphs
+            initCharts();
+            
+            // Draw initial state
+            drawInitialState();
+        }
+
+        // Update displayed input values
+        function updateInputValues() {
+            initialVelocity = parseFloat(initialVelocityInput.value);
+            launchAngle = parseFloat(launchAngleInput.value);
+            gravity = parseFloat(gravityInput.value);
+            projectileMass = parseFloat(projectileMassInput.value);
+            airResistance = parseFloat(airResistanceInput.value);
+            
+            velocityValue.textContent = initialVelocity;
+            angleValue.textContent = launchAngle;
+            gravityValue.textContent = gravity;
+            massValue.textContent = projectileMass;
+            airResistanceValue.textContent = airResistance;
+            
+            if (!isRunning) {
+                drawInitialState();
+            }
+        }
+
+        // Resize canvas to fit container
+        function resizeCanvas() {
+            const container = canvas.parentElement;
+            canvas.width = container.clientWidth;
+            canvas.height = container.clientHeight;
+            
+            // Set origin at 1/10 from bottom of canvas
+            originX = 50;
+            originY = canvas.height - 50;
+            groundLevel = originY;
+            
+            if (!isRunning) {
+                drawInitialState();
+            } else {
+                drawScene();
+            }
+        }
+
+        // Draw initial state before simulation starts
+        function drawInitialState() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            
+            // Draw ground
+            ctx.beginPath();
+            ctx.moveTo(0, groundLevel);
+            ctx.lineTo(canvas.width, groundLevel);
+            ctx.strokeStyle = '#777';
+            ctx.lineWidth = 2;
+            ctx.stroke();
+            
+            // Draw axes
+            drawAxes();
+            
+            // Draw initial velocity vector
+            const angleRad = launchAngle * Math.PI / 180;
+            const vx = initialVelocity * Math.cos(angleRad);
+            const vy = -initialVelocity * Math.sin(angleRad); // Negative because y increases downward
+            
+            ctx.save();
+            ctx.translate(originX, originY);
+            
+            // Velocity vector
+            ctx.beginPath();
+            ctx.moveTo(0, 0);
+            ctx.lineTo(vx * scale, vy * scale);
+            ctx.strokeStyle = '#e74c3c';
+            ctx.lineWidth = 2;
+            ctx.stroke();
+            
+            // Arrow head
+            drawArrowHead(vx * scale, vy * scale, 10, Math.atan2(vy, vx));
+            
+            // Angle indicator
+            ctx.beginPath();
+            const arcRadius = Math.min(50, initialVelocity * scale / 2);
+            ctx.arc(0, 0, arcRadius, 0, -angleRad, true);
+            ctx.strokeStyle = '#3498db';
+            ctx.lineWidth = 1;
+            ctx.stroke();
+            
+            // Angle text
+            ctx.fillStyle = '#3498db';
+            ctx.font = '14px Arial';
+            ctx.fillText(`${launchAngle}°`, arcRadius + 10, -10);
+            
+            ctx.restore();
+            
+            // Update info display
+            updateInfoDisplay(0, 0, 0, 0, -vy, -gravity);
+        }
+
+        // Draw coordinate axes
+        function drawAxes() {
+            ctx.save();
+            ctx.strokeStyle = '#aaa';
+            ctx.lineWidth = 1;
+            
+            // X axis
+            ctx.beginPath();
+            ctx.moveTo(0, originY);
+            ctx.lineTo(canvas.width, originY);
+            ctx.stroke();
+            
+            // Y axis
+            ctx.beginPath();
+            ctx.moveTo(originX, canvas.height);
+            ctx.lineTo(originX, 0);
+            ctx.stroke();
+            
+            // Add scale markers (every 50 pixels)
+            const markerLength = 5;
+            const xStep = 50;
+            const yStep = 50;
+            
+            // X axis markers
+            for (let x = originX + xStep; x < canvas.width; x += xStep) {
+                ctx.beginPath();
+                ctx.moveTo(x, originY - markerLength);
+                ctx.lineTo(x, originY + markerLength);
+                ctx.stroke();
+                
+                // Label every 100 pixels
+                if ((x - originX) % 100 === 0) {
+                    ctx.fillStyle = '#777';
+                    ctx.font = '12px Arial';
+                    ctx.textAlign = 'center';
+                    ctx.fillText(`${(x - originX)/scale}m`, x, originY + 20);
+                }
+            }
+            
+            // Y axis markers (positive direction is up in physics, down in canvas)
+            for (let y = originY - yStep; y > 0; y -= yStep) {
+                ctx.beginPath();
+                ctx.moveTo(originX - markerLength, y);
+                ctx.lineTo(originX + markerLength, y);
+                ctx.stroke();
+                
+                // Label every 100 pixels
+                if ((originY - y) % 100 === 0) {
+                    ctx.fillStyle = '#777';
+                    ctx.font = '12px Arial';
+                    ctx.textAlign = 'right';
+                    ctx.fillText(`${(originY - y)/scale}m`, originX - 10, y + 4);
+                }
+            }
+            
+            ctx.restore();
+        }
+
+        // Draw arrow head at the end of a vector
+        function drawArrowHead(x, y, size, angle) {
+            ctx.save();
+            ctx.translate(x, y);
+            ctx.rotate(angle);
+            
+            ctx.beginPath();
+            ctx.moveTo(0, 0);
+            ctx.lineTo(-size, -size/2);
+            ctx.lineTo(-size, size/2);
+            ctx.closePath();
+            ctx.fillStyle = '#e74c3c';
+            ctx.fill();
+            
+            ctx.restore();
+        }
+
+        // Start the simulation
+        function startSimulation() {
+            if (isRunning && !isPaused) return;
+            
+            if (isPaused) {
+                isPaused = false;
+                pauseBtn.textContent = 'Pause';
+                animate();
+                return;
+            }
+            
+            // Reset simulation state
+            resetSimulation(false);
+            
+            isRunning = true;
+            isPaused = false;
+            pauseBtn.textContent = 'Pause';
+            launchBtn.disabled = true;
+            
+            // Calculate initial conditions
+            const angleRad = launchAngle * Math.PI / 180;
+            const vx0 = initialVelocity * Math.cos(angleRad);
+            const vy0 = -initialVelocity * Math.sin(angleRad); // Negative because y increases downward
+            
+            // Initial state
+            let x = 0;
+            let y = 0;
+            let vx = vx0;
+            let vy = vy0;
+            let ax = 0;
+            let ay = gravity;
+            
+            // Time step (in seconds)
+            const dt = 0.016; // ~60fps
+            
+            // Store initial state
+            trajectory = [{x, y, vx, vy, ax, ay}];
+            updateGraphData(0, x, y, vx, vy);
+            
+            // Start animation loop
+            animate();
+            
+            function animate() {
+                if (isPaused) return;
+                
+                // Update time
+                time += dt;
+                
+                // Calculate new position with air resistance
+                if (airResistance > 0) {
+                    const speed = Math.sqrt(vx*vx + vy*vy);
+                    const dragForce = airResistance * speed * speed;
+                    const dragAngle = Math.atan2(vy, vx);
+                    
+                    ax = -dragForce * Math.cos(dragAngle) / projectileMass;
+                    ay = gravity - dragForce * Math.sin(dragAngle) / projectileMass;
+                }
+                
+                // Update velocity
+                vx += ax * dt;
+                vy += ay * dt;
+                
+                // Update position
+                x += vx * dt;
+                y += vy * dt;
+                
+                // Store current state
+                trajectory.push({x, y, vx, vy, ax, ay});
+                updateGraphData(time, x, y, vx, vy);
+                
+                // Check if projectile hit the ground
+                if (y >= 0) {
+                    drawScene();
+                    updateInfoDisplay(time, x, y, vx, vy, ay);
+                } else {
+                    // Projectile hit the ground
+                    isRunning = false;
+                    launchBtn.disabled = false;
+                    
+                    // Calculate exact time of impact for more accurate results
+                    const lastState = trajectory[trajectory.length - 2];
+                    const tImpact = time - dt + dt * lastState.y / (lastState.y - y);
+                    const xImpact = lastState.x + lastState.vx * (tImpact - (time - dt));
+                    
+                    // Add impact point to trajectory
+                    trajectory.push({x: xImpact, y: 0, vx: lastState.vx, vy: lastState.vy, ax: 0, ay: gravity});
+                    updateGraphData(tImpact, xImpact, 0, lastState.vx, lastState.vy);
+                    
+                    drawScene();
+                    updateInfoDisplay(tImpact, xImpact, 0, lastState.vx, lastState.vy, gravity);
+                    
+                    // Calculate and display results
+                    displayResults(tImpact, xImpact);
+                    return;
+                }
+                
+                animationId = requestAnimationFrame(animate);
+            }
+        }
+
+        // Draw the current scene
+        function drawScene() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            
+            // Draw ground
+            ctx.beginPath();
+            ctx.moveTo(0, groundLevel);
+            ctx.lineTo(canvas.width, groundLevel);
+            ctx.strokeStyle = '#777';
+            ctx.lineWidth = 2;
+            ctx.stroke();
+            
+            // Draw axes
+            drawAxes();
+            
+            // Draw trajectory
+            ctx.save();
+            ctx.translate(originX, originY);
+            
+            ctx.beginPath();
+            ctx.moveTo(0, 0);
+            
+            for (const point of trajectory) {
+                ctx.lineTo(point.x * scale, point.y * scale);
+            }
+            
+            ctx.strokeStyle = '#3498db';
+            ctx.lineWidth = 2;
+            ctx.stroke();
+            
+            // Draw current position
+            const current = trajectory[trajectory.length - 1];
+            if (current) {
+                // Position dot
+                ctx.beginPath();
+                ctx.arc(current.x * scale, current.y * scale, 5, 0, Math.PI * 2);
+                ctx.fillStyle = '#e74c3c';
+                ctx.fill();
+                
+                // Velocity vector
+                ctx.beginPath();
+                ctx.moveTo(current.x * scale, current.y * scale);
+                ctx.lineTo(current.x * scale + current.vx * scale, current.y * scale + current.vy * scale);
+                ctx.strokeStyle = '#e74c3c';
+                ctx.lineWidth = 1.5;
+                ctx.stroke();
+                drawArrowHead(current.x * scale + current.vx * scale, current.y * scale + current.vy * scale, 
+                             8, Math.atan2(current.vy, current.vx));
+                
+                // Acceleration vector (scaled down for visibility)
+                const scaleFactor = 5;
+                ctx.beginPath();
+                ctx.moveTo(current.x * scale, current.y * scale);
+                ctx.lineTo(current.x * scale + current.ax * scale * scaleFactor, 
+                          current.y * scale + current.ay * scale * scaleFactor);
+                ctx.strokeStyle = '#2ecc71';
+                ctx.lineWidth = 1.5;
+                ctx.stroke();
+                drawArrowHead(current.x * scale + current.ax * scale * scaleFactor, 
+                             current.y * scale + current.ay * scale * scaleFactor, 
+                             8, Math.atan2(current.ay, current.ax));
+            }
+            
+            ctx.restore();
+        }
+
+        // Update the information display
+        function updateInfoDisplay(t, x, y, vx, vy, ay) {
+            timeDisplay.textContent = `Time: ${t.toFixed(2)}s`;
+            positionDisplay.textContent = `Position: (${x.toFixed(2)}, ${y.toFixed(2)})m`;
+            velocityDisplay.textContent = `Velocity: (${vx.toFixed(2)}, ${-vy.toFixed(2)})m/s`;
+            accelerationDisplay.textContent = `Acceleration: (${0}, ${-ay.toFixed(2)})m/s²`;
+        }
+
+        // Update graph data
+        function updateGraphData(t, x, y, vx, vy) {
+            graphData.times.push(t);
+            graphData.xPositions.push(x);
+            graphData.yPositions.push(y);
+            graphData.xVelocities.push(vx);
+            graphData.yVelocities.push(-vy); // Convert to physics coordinate system
+            
+            // Calculate energies
+            const speedSquared = vx*vx + vy*vy;
+            const kineticEnergy = 0.5 * projectileMass * speedSquared;
+            const potentialEnergy = projectileMass * gravity * y;
+            
+            graphData.kineticEnergies.push(kineticEnergy);
+            graphData.potentialEnergies.push(potentialEnergy);
+            graphData.totalEnergies.push(kineticEnergy + potentialEnergy);
+            
+            // Update charts
+            updateCharts();
+        }
+
+        // Initialize charts
+        function initCharts() {
+            // Position chart
+            positionChart = new Chart(positionGraphCtx, {
+                type: 'line',
+                data: {
+                    labels: [],
+                    datasets: [
+                        {
+                            label: 'Horizontal Position (x)',
+                            data: [],
+                            borderColor: 'rgb(75, 192, 192)',
+                            tension: 0.1,
+                            yAxisID: 'y'
+                        },
+                        {
+                            label: 'Vertical Position (y)',
+                            data: [],
+                            borderColor: 'rgb(255, 99, 132)',
+                            tension: 0.1,
+                            yAxisID: 'y'
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        x: {
+                            title: {
+                                display: true,
+                                text: 'Time (s)'
+                            }
+                        },
+                        y: {
+                            title: {
+                                display: true,
+                                text: 'Position (m)'
+                            }
+                        }
+                    }
+                }
+            });
+            
+            // Velocity chart
+            velocityChart = new Chart(velocityGraphCtx, {
+                type: 'line',
+                data: {
+                    labels: [],
+                    datasets: [
+                        {
+                            label: 'Horizontal Velocity (vx)',
+                            data: [],
+                            borderColor: 'rgb(54, 162, 235)',
+                            tension: 0.1,
+                            yAxisID: 'y'
+                        },
+                        {
+                            label: 'Vertical Velocity (vy)',
+                            data: [],
+                            borderColor: 'rgb(255, 159, 64)',
+                            tension: 0.1,
+                            yAxisID: 'y'
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        x: {
+                            title: {
+                                display: true,
+                                text: 'Time (s)'
+                            }
+                        },
+                        y: {
+                            title: {
+                                display: true,
+                                text: 'Velocity (m/s)'
+                            }
+                        }
+                    }
+                }
+            });
+            
+            // Energy chart
+            energyChart = new Chart(energyGraphCtx, {
+                type: 'line',
+                data: {
+                    labels: [],
+                    datasets: [
+                        {
+                            label: 'Kinetic Energy',
+                            data: [],
+                            borderColor: 'rgb(255, 206, 86)',
+                            tension: 0.1,
+                            yAxisID: 'y'
+                        },
+                        {
+                            label: 'Potential Energy',
+                            data: [],
+                            borderColor: 'rgb(153, 102, 255)',
+                            tension: 0.1,
+                            yAxisID: 'y'
+                        },
+                        {
+                            label: 'Total Energy',
+                            data: [],
+                            borderColor: 'rgb(255, 99, 132)',
+                            tension: 0.1,
+                            yAxisID: 'y'
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        x: {
+                            title: {
+                                display: true,
+                                text: 'Time (s)'
+                            }
+                        },
+                        y: {
+                            title: {
+                                display: true,
+                                text: 'Energy (J)'
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        // Update charts with current data
+        function updateCharts() {
+            if (!positionChart || !velocityChart || !energyChart) return;
+            
+            // Position chart
+            positionChart.data.labels = graphData.times;
+            positionChart.data.datasets[0].data = graphData.xPositions;
+            positionChart.data.datasets[1].data = graphData.yPositions;
+            positionChart.update();
+            
+            // Velocity chart
+            velocityChart.data.labels = graphData.times;
+            velocityChart.data.datasets[0].data = graphData.xVelocities;
+            velocityChart.data.datasets[1].data = graphData.yVelocities;
+            velocityChart.update();
+            
+            // Energy chart
+            energyChart.data.labels = graphData.times;
+            energyChart.data.datasets[0].data = graphData.kineticEnergies;
+            energyChart.data.datasets[1].data = graphData.potentialEnergies;
+            energyChart.data.datasets[2].data = graphData.totalEnergies;
+            energyChart.update();
+        }
+
+        // Toggle pause state
+        function togglePause() {
+            isPaused = !isPaused;
+            pauseBtn.textContent = isPaused ? 'Resume' : 'Pause';
+            
+            if (!isPaused && isRunning) {
+                animate();
+            }
+        }
+
+        // Reset the simulation
+        function resetSimulation(clearCharts = true) {
+            // Stop animation
+            if (animationId) {
+                cancelAnimationFrame(animationId);
+                animationId = null;
+            }
+            
+            isRunning = false;
+            isPaused = false;
+            time = 0;
+            pauseBtn.textContent = 'Pause';
+            launchBtn.disabled = false;
+            
+            // Clear trajectory
+            trajectory = [];
+            
+            // Reset graph data
+            if (clearCharts) {
+                graphData = {
+                    times: [],
+                    xPositions: [],
+                    yPositions: [],
+                    xVelocities: [],
+                    yVelocities: [],
+                    kineticEnergies: [],
+                    potentialEnergies: [],
+                    totalEnergies: []
+                };
+                
+                updateCharts();
+            }
+            
+            // Draw initial state
+            drawInitialState();
+        }
+
+        // Display final results
+        function displayResults(timeOfFlight, range) {
+            const angleRad = launchAngle * Math.PI / 180;
+            const maxHeight = Math.max(...graphData.yPositions);
+            
+            // Show results panel
+            resultsPanel.style.display = 'block';
+            
+            // Calculate theoretical values (no air resistance)
+            const theoreticalTime = (2 * initialVelocity * Math.sin(angleRad)) / gravity;
+            const theoreticalRange = (initialVelocity * initialVelocity * Math.sin(2 * angleRad)) / gravity;
+            const theoreticalHeight = (initialVelocity * initialVelocity * Math.sin(angleRad) * Math.sin(angleRad)) / (2 * gravity);
+            
+            // Update result displays
+            document.getElementById('timeResult').textContent = `${timeOfFlight.toFixed(2)} s`;
+            document.getElementById('rangeResult').textContent = `${range.toFixed(2)} m`;
+            document.getElementById('heightResult').textContent = `${maxHeight.toFixed(2)} m`;
+            
+            // Update theoretical values if air resistance is present
+            if (airResistance > 0) {
+                document.getElementById('timeTheory').textContent = `(Theory: ${theoreticalTime.toFixed(2)} s)`;
+                document.getElementById('rangeTheory').textContent = `(Theory: ${theoreticalRange.toFixed(2)} m)`;
+                document.getElementById('heightTheory').textContent = `(Theory: ${theoreticalHeight.toFixed(2)} m)`;
+                
+                const airNote = document.getElementById('airResistanceNote');
+                airNote.innerHTML = `
+                    <p>Note: Theoretical values (in parentheses) are for no air resistance. 
+                    With air resistance (k = ${airResistance}), the projectile has:</p>
+                    <ul>
+                        <li>Shorter range (${(100 * range/theoreticalRange).toFixed(1)}% of theoretical)</li>
+                        <li>Lower maximum height (${(100 * maxHeight/theoreticalHeight).toFixed(1)}% of theoretical)</li>
+                        <li>Shorter time of flight (${(100 * timeOfFlight/theoreticalTime).toFixed(1)}% of theoretical)</li>
+                    </ul>
+                `;
+                airNote.style.display = 'block';
+            } else {
+                document.getElementById('timeTheory').textContent = '';
+                document.getElementById('rangeTheory').textContent = '';
+                document.getElementById('heightTheory').textContent = '';
+                document.getElementById('airResistanceNote').style.display = 'none';
+            }
+        }
+
+        // Toggle equations panel
+        function toggleEquations() {
+            const isVisible = equationsPanel.style.display === 'block';
+            equationsPanel.style.display = isVisible ? 'none' : 'block';
+            showEquationsBtn.textContent = isVisible ? 'Show Equations' : 'Hide Equations';
+        }
+
+        // Initialize the app when the page loads
+        window.addEventListener('load', init);
+    </script>
+</body>
+</html>

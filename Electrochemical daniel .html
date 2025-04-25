@@ -1,0 +1,779 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Electrochemical Cells Learning Tool</title>
+    <style>
+        /* CSS Reset and Base Styles */
+        :root {
+            --primary-color: #3498db;
+            --secondary-color: #2ecc71;
+            --dark-color: #2c3e50;
+            --light-color: #ecf0f1;
+            --danger-color: #e74c3c;
+            --warning-color: #f39c12;
+            --text-dark: #333;
+            --text-light: #fff;
+            --shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            --transition: all 0.3s ease;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: var(--text-dark);
+            background-color: var(--light-color);
+            transition: var(--transition);
+        }
+
+        body.dark-mode {
+            background-color: var(--dark-color);
+            color: var(--text-light);
+        }
+
+        /* Layout Styles */
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px 0;
+            border-bottom: 1px solid #ddd;
+            margin-bottom: 30px;
+        }
+
+        body.dark-mode header {
+            border-bottom-color: #555;
+        }
+
+        h1, h2, h3 {
+            margin-bottom: 15px;
+            color: var(--primary-color);
+        }
+
+        body.dark-mode h1,
+        body.dark-mode h2,
+        body.dark-mode h3 {
+            color: var(--secondary-color);
+        }
+
+        /* Theme Toggle */
+        .theme-toggle {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .toggle-btn {
+            position: relative;
+            display: inline-block;
+            width: 60px;
+            height: 30px;
+            background-color: #ccc;
+            border-radius: 30px;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .toggle-btn.active {
+            background-color: var(--primary-color);
+        }
+
+        .toggle-knob {
+            position: absolute;
+            top: 3px;
+            left: 3px;
+            width: 24px;
+            height: 24px;
+            background-color: white;
+            border-radius: 50%;
+            transition: var(--transition);
+        }
+
+        .toggle-btn.active .toggle-knob {
+            left: 33px;
+        }
+
+        /* Main Content Layout */
+        .main-content {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+        }
+
+        @media (max-width: 768px) {
+            .main-content {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* Theory Section */
+        .theory-section {
+            background-color: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: var(--shadow);
+            margin-bottom: 20px;
+        }
+
+        body.dark-mode .theory-section {
+            background-color: #34495e;
+        }
+
+        .theory-section h2 {
+            border-bottom: 2px solid var(--primary-color);
+            padding-bottom: 10px;
+        }
+
+        body.dark-mode .theory-section h2 {
+            border-bottom-color: var(--secondary-color);
+        }
+
+        /* Simulation Section */
+        .simulation-section {
+            background-color: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: var(--shadow);
+            margin-bottom: 20px;
+        }
+
+        body.dark-mode .simulation-section {
+            background-color: #34495e;
+        }
+
+        .cell-diagram {
+            width: 100%;
+            height: 400px;
+            position: relative;
+            margin: 20px 0;
+            background-color: #f9f9f9;
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        body.dark-mode .cell-diagram {
+            background-color: #2c3e50;
+        }
+
+        /* Electrode Styles */
+        .electrode {
+            position: absolute;
+            width: 60px;
+            height: 120px;
+            border-radius: 5px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-weight: bold;
+            color: white;
+            cursor: pointer;
+            transition: var(--transition);
+            box-shadow: var(--shadow);
+        }
+
+        .electrode:hover {
+            transform: translateY(-5px);
+        }
+
+        .anode {
+            background-color: #e67e22;
+            left: 20%;
+            bottom: 100px;
+        }
+
+        .cathode {
+            background-color: #3498db;
+            right: 20%;
+            bottom: 100px;
+        }
+
+        /* Solution Styles */
+        .solution {
+            position: absolute;
+            width: 150px;
+            height: 180px;
+            bottom: 0;
+            border-top-left-radius: 10px;
+            border-top-right-radius: 10px;
+            opacity: 0.7;
+        }
+
+        .zn-solution {
+            left: 10%;
+            background-color: rgba(241, 196, 15, 0.5);
+        }
+
+        .cu-solution {
+            right: 10%;
+            background-color: rgba(52, 152, 219, 0.5);
+        }
+
+        /* Salt Bridge */
+        .salt-bridge {
+            position: absolute;
+            width: 30px;
+            height: 60px;
+            background-color: #9b59b6;
+            left: 50%;
+            transform: translateX(-50%);
+            bottom: 120px;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .salt-bridge:hover {
+            transform: translateX(-50%) scaleY(1.1);
+        }
+
+        /* Voltmeter */
+        .voltmeter {
+            position: absolute;
+            width: 80px;
+            height: 60px;
+            background-color: #2ecc71;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            border-radius: 5px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-weight: bold;
+            color: white;
+            box-shadow: var(--shadow);
+        }
+
+        /* Wires */
+        .wire {
+            position: absolute;
+            background-color: #7f8c8d;
+            z-index: 1;
+        }
+
+        .horizontal-wire {
+            height: 3px;
+        }
+
+        .vertical-wire {
+            width: 3px;
+        }
+
+        /* Controls Section */
+        .controls {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .control-group {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+
+        label {
+            font-weight: bold;
+        }
+
+        input[type="range"] {
+            width: 100%;
+        }
+
+        .concentration-value {
+            display: inline-block;
+            width: 50px;
+            text-align: right;
+        }
+
+        /* Buttons */
+        .btn {
+            padding: 10px 15px;
+            border: none;
+            border-radius: 5px;
+            background-color: var(--primary-color);
+            color: white;
+            cursor: pointer;
+            transition: var(--transition);
+            font-weight: bold;
+        }
+
+        .btn:hover {
+            opacity: 0.9;
+            transform: translateY(-2px);
+        }
+
+        .btn-secondary {
+            background-color: var(--secondary-color);
+        }
+
+        .btn-danger {
+            background-color: var(--danger-color);
+        }
+
+        /* Tooltip */
+        .tooltip {
+            position: absolute;
+            background-color: rgba(0, 0, 0, 0.8);
+            color: white;
+            padding: 5px 10px;
+            border-radius: 5px;
+            font-size: 14px;
+            z-index: 100;
+            pointer-events: none;
+            opacity: 0;
+            transition: opacity 0.3s;
+            max-width: 200px;
+        }
+
+        body.dark-mode .tooltip {
+            background-color: rgba(255, 255, 255, 0.9);
+            color: var(--text-dark);
+        }
+
+        /* Reaction Display */
+        .reaction-display {
+            background-color: #f8f9fa;
+            padding: 15px;
+            border-radius: 5px;
+            margin-top: 20px;
+            font-family: 'Courier New', Courier, monospace;
+            text-align: center;
+        }
+
+        body.dark-mode .reaction-display {
+            background-color: #3d566e;
+        }
+
+        .reaction-equation {
+            font-size: 18px;
+            margin: 10px 0;
+        }
+
+        /* Info Cards */
+        .info-card {
+            background-color: #f8f9fa;
+            padding: 15px;
+            border-radius: 5px;
+            margin: 10px 0;
+            border-left: 4px solid var(--primary-color);
+        }
+
+        body.dark-mode .info-card {
+            background-color: #3d566e;
+            border-left-color: var(--secondary-color);
+        }
+
+        /* Mobile Responsiveness */
+        @media (max-width: 768px) {
+            header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 15px;
+            }
+
+            .electrode {
+                width: 50px;
+                height: 100px;
+            }
+
+            .solution {
+                width: 120px;
+            }
+        }
+
+        /* Animation Classes */
+        .pulse {
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+
+        .highlight {
+            background-color: rgba(255, 255, 0, 0.3);
+            transition: background-color 0.5s;
+        }
+
+        body.dark-mode .highlight {
+            background-color: rgba(255, 255, 0, 0.6);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Electrochemical Cells Interactive Learning</h1>
+            <div class="theme-toggle">
+                <span>Dark Mode</span>
+                <div class="toggle-btn">
+                    <div class="toggle-knob"></div>
+                </div>
+            </div>
+        </header>
+
+        <div class="main-content">
+            <div class="theory-section">
+                <h2>Introduction to Electrochemical Cells</h2>
+                <p>An electrochemical cell is a device that converts chemical energy into electrical energy through redox reactions. It consists of two half-cells, each containing an electrode immersed in an electrolyte solution.</p>
+                
+                <div class="info-card">
+                    <h3>Key Components:</h3>
+                    <ul>
+                        <li><strong>Anode:</strong> Where oxidation occurs (loss of electrons)</li>
+                        <li><strong>Cathode:</strong> Where reduction occurs (gain of electrons)</li>
+                        <li><strong>Salt Bridge:</strong> Maintains electrical neutrality by allowing ion flow</li>
+                        <li><strong>External Circuit:</strong> Allows electron flow from anode to cathode</li>
+                    </ul>
+                </div>
+
+                <h3>Daniel Cell</h3>
+                <p>The Daniel cell is a classic example of a galvanic cell that converts chemical energy into electrical energy. It consists of a zinc electrode in ZnSO₄ solution (anode) and a copper electrode in CuSO₄ solution (cathode).</p>
+
+                <div class="info-card">
+                    <h3>Cell Notation:</h3>
+                    <p>Zn(s) | Zn²⁺(aq) || Cu²⁺(aq) | Cu(s)</p>
+                    <p>Where:</p>
+                    <ul>
+                        <li>| represents a phase boundary</li>
+                        <li>|| represents the salt bridge</li>
+                        <li>Single line (|) indicates different phases in contact</li>
+                    </ul>
+                </div>
+
+                <h3>Electrode Potential</h3>
+                <p>Electrode potential is the potential difference developed between the electrode and its electrolyte. The standard electrode potential (E°) is measured under standard conditions (1M concentration, 1 atm pressure, 25°C).</p>
+
+                <div class="reaction-display">
+                    <h4>Half-Reactions:</h4>
+                    <div class="reaction-equation" id="anode-reaction">
+                        Zn(s) → Zn²⁺(aq) + 2e⁻ &nbsp; (Oxidation, E° = +0.76V)
+                    </div>
+                    <div class="reaction-equation" id="cathode-reaction">
+                        Cu²⁺(aq) + 2e⁻ → Cu(s) &nbsp; (Reduction, E° = +0.34V)
+                    </div>
+                    <div class="reaction-equation" id="overall-reaction">
+                        Zn(s) + Cu²⁺(aq) → Zn²⁺(aq) + Cu(s) &nbsp; (E°cell = 1.10V)
+                    </div>
+                </div>
+
+                <h3>EMF Calculation</h3>
+                <p>The electromotive force (EMF) of a cell is the potential difference between the two electrodes when no current is drawn. It can be calculated using the Nernst equation:</p>
+                <div class="info-card">
+                    <p>E<sub>cell</sub> = E°<sub>cell</sub> - (RT/nF) ln Q</p>
+                    <p>Where:</p>
+                    <ul>
+                        <li>E°<sub>cell</sub> = Standard cell potential</li>
+                        <li>R = Gas constant (8.314 J/mol·K)</li>
+                        <li>T = Temperature (K)</li>
+                        <li>n = Number of electrons transferred</li>
+                        <li>F = Faraday's constant (96485 C/mol)</li>
+                        <li>Q = Reaction quotient</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="simulation-section">
+                <h2>Interactive Daniel Cell Simulation</h2>
+                <p>Interact with the components below to learn how an electrochemical cell works:</p>
+                
+                <div class="cell-diagram" id="cell-diagram">
+                    <!-- Electrodes -->
+                    <div class="electrode anode" title="Zinc Anode (Oxidation occurs here)">Zn</div>
+                    <div class="electrode cathode" title="Copper Cathode (Reduction occurs here)">Cu</div>
+                    
+                    <!-- Solutions -->
+                    <div class="solution zn-solution" title="Zinc Sulfate Solution (ZnSO₄)"></div>
+                    <div class="solution cu-solution" title="Copper Sulfate Solution (CuSO₄)"></div>
+                    
+                    <!-- Salt Bridge -->
+                    <div class="salt-bridge" title="Salt Bridge (Allows ion flow to maintain neutrality)"></div>
+                    
+                    <!-- Voltmeter -->
+                    <div class="voltmeter" id="voltmeter">1.10 V</div>
+                    
+                    <!-- Wires -->
+                    <div class="wire horizontal-wire" style="width: 100px; left: 80px; top: 80px;"></div>
+                    <div class="wire vertical-wire" style="height: 20px; left: 80px; top: 80px;"></div>
+                    <div class="wire horizontal-wire" style="width: 100px; right: 80px; top: 80px;"></div>
+                    <div class="wire vertical-wire" style="height: 20px; right: 80px; top: 80px;"></div>
+                    <div class="wire horizontal-wire" style="width: 60px; left: 50%; transform: translateX(-50%); top: 50px;"></div>
+                    
+                    <!-- Tooltip -->
+                    <div class="tooltip" id="tooltip"></div>
+                </div>
+
+                <div class="controls">
+                    <h3>Cell Parameters</h3>
+                    
+                    <div class="control-group">
+                        <label for="zn-concentration">Zn²⁺ Concentration (M): <span class="concentration-value" id="zn-value">1.0</span></label>
+                        <input type="range" id="zn-concentration" min="0.1" max="2.0" step="0.1" value="1.0">
+                    </div>
+                    
+                    <div class="control-group">
+                        <label for="cu-concentration">Cu²⁺ Concentration (M): <span class="concentration-value" id="cu-value">1.0</span></label>
+                        <input type="range" id="cu-concentration" min="0.1" max="2.0" step="0.1" value="1.0">
+                    </div>
+                    
+                    <div class="control-group">
+                        <label for="temperature">Temperature (°C): <span class="concentration-value" id="temp-value">25</span></label>
+                        <input type="range" id="temperature" min="0" max="100" step="1" value="25">
+                    </div>
+                    
+                    <button class="btn" id="reset-btn">Reset to Standard Conditions</button>
+                    <button class="btn btn-secondary" id="show-reactions-btn">Show Reactions</button>
+                    <button class="btn btn-danger" id="show-help-btn">Help</button>
+                </div>
+
+                <div class="reaction-display" id="dynamic-reaction-display">
+                    <h4>Current Cell Status:</h4>
+                    <p>Zn(s) | Zn²⁺(1.0 M) || Cu²⁺(1.0 M) | Cu(s)</p>
+                    <p>E<sub>cell</sub> = <span id="calculated-emf">1.10</span> V</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="theory-section">
+            <h2>Working Principle and Applications</h2>
+            
+            <h3>How the Daniel Cell Works</h3>
+            <ol>
+                <li>Zinc atoms at the anode oxidize to Zn²⁺ ions, releasing electrons</li>
+                <li>Electrons flow through the external circuit to the copper cathode</li>
+                <li>Cu²⁺ ions in solution gain electrons and reduce to copper metal</li>
+                <li>The salt bridge maintains electrical neutrality by allowing SO₄²⁻ ions to flow</li>
+            </ol>
+            
+            <h3>Applications of Electrochemical Cells</h3>
+            <div class="info-card">
+                <ul>
+                    <li><strong>Batteries:</strong> Dry cells, lead-acid batteries, lithium-ion batteries</li>
+                    <li><strong>Electroplating:</strong> Coating objects with a thin layer of metal</li>
+                    <li><strong>Corrosion Prevention:</strong> Cathodic protection of metals</li>
+                    <li><strong>Fuel Cells:</strong> Generate electricity from chemical reactions</li>
+                    <li><strong>Sensors:</strong> pH meters, glucose monitors, gas detectors</li>
+                </ul>
+            </div>
+            
+            <h3>Important Concepts for NEET</h3>
+            <div class="info-card">
+                <ul>
+                    <li>Standard hydrogen electrode (SHE) is the reference electrode with E° = 0V</li>
+                    <li>EMF is always positive for a galvanic cell</li>
+                    <li>The more positive the reduction potential, the stronger the oxidizing agent</li>
+                    <li>Cell potential depends on concentration (Nernst equation) and temperature</li>
+                    <li>1 Faraday (F) = 96500 C/mol (charge of 1 mole of electrons)</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // DOM Elements
+        const themeToggle = document.querySelector('.toggle-btn');
+        const tooltip = document.getElementById('tooltip');
+        const znConcentration = document.getElementById('zn-concentration');
+        const cuConcentration = document.getElementById('cu-concentration');
+        const temperature = document.getElementById('temperature');
+        const znValue = document.getElementById('zn-value');
+        const cuValue = document.getElementById('cu-value');
+        const tempValue = document.getElementById('temp-value');
+        const resetBtn = document.getElementById('reset-btn');
+        const showReactionsBtn = document.getElementById('show-reactions-btn');
+        const showHelpBtn = document.getElementById('show-help-btn');
+        const voltmeter = document.getElementById('voltmeter');
+        const calculatedEmf = document.getElementById('calculated-emf');
+        const dynamicReactionDisplay = document.getElementById('dynamic-reaction-display');
+        const cellDiagram = document.getElementById('cell-diagram');
+
+        // Standard Electrode Potentials (in volts)
+        const E0_Zn = 0.76;  // Zn²⁺/Zn (Oxidation potential, so sign is reversed)
+        const E0_Cu = 0.34;   // Cu²⁺/Cu
+
+        // Constants
+        const R = 8.314;      // J/mol·K
+        const F = 96485;      // C/mol
+
+        // Initialize tooltip functionality
+        function initTooltips() {
+            const elementsWithTooltip = document.querySelectorAll('[title]');
+            
+            elementsWithTooltip.forEach(element => {
+                element.addEventListener('mouseenter', (e) => {
+                    const rect = element.getBoundingClientRect();
+                    tooltip.textContent = element.getAttribute('title');
+                    tooltip.style.left = `${rect.left + window.scrollX}px`;
+                    tooltip.style.top = `${rect.top + window.scrollY - 40}px`;
+                    tooltip.style.opacity = '1';
+                });
+                
+                element.addEventListener('mouseleave', () => {
+                    tooltip.style.opacity = '0';
+                });
+            });
+        }
+
+        // Calculate EMF using Nernst equation
+        function calculateEMF(znConc, cuConc, temp) {
+            // Standard cell potential (E°cell = E°cathode - E°anode)
+            const E0_cell = E0_Cu - (-E0_Zn); // Note: Zn is oxidation, so we use -E0_Zn
+            
+            // Convert temperature to Kelvin
+            const T = temp + 273.15;
+            
+            // Number of electrons transferred
+            const n = 2;
+            
+            // Reaction quotient Q = [Zn²⁺]/[Cu²⁺]
+            const Q = znConc / cuConc;
+            
+            // Nernst equation: Ecell = E0_cell - (RT/nF)lnQ
+            const E_cell = E0_cell - ((R * T) / (n * F)) * Math.log(Q);
+            
+            return E_cell.toFixed(2);
+        }
+
+        // Update the display based on current parameters
+        function updateDisplay() {
+            const znConc = parseFloat(znConcentration.value);
+            const cuConc = parseFloat(cuConcentration.value);
+            const temp = parseFloat(temperature.value);
+            
+            // Update displayed values
+            znValue.textContent = znConc.toFixed(1);
+            cuValue.textContent = cuConc.toFixed(1);
+            tempValue.textContent = temp;
+            
+            // Calculate and display EMF
+            const emf = calculateEMF(znConc, cuConc, temp);
+            voltmeter.textContent = `${emf} V`;
+            calculatedEmf.textContent = emf;
+            
+            // Update the cell notation display
+            dynamicReactionDisplay.innerHTML = `
+                <h4>Current Cell Status:</h4>
+                <p>Zn(s) | Zn²⁺(${znConc.toFixed(1)} M) || Cu²⁺(${cuConc.toFixed(1)} M) | Cu(s)</p>
+                <p>E<sub>cell</sub> = <span id="calculated-emf">${emf}</span> V</p>
+                <p>Temperature: ${temp}°C</p>
+            `;
+            
+            // Visual feedback for concentration changes
+            const znSolution = document.querySelector('.zn-solution');
+            const cuSolution = document.querySelector('.cu-solution');
+            
+            // Adjust opacity based on concentration (darker = more concentrated)
+            znSolution.style.opacity = 0.3 + (znConc / 2) * 0.5;
+            cuSolution.style.opacity = 0.3 + (cuConc / 2) * 0.5;
+            
+            // Highlight changes
+            voltmeter.classList.add('pulse');
+            setTimeout(() => voltmeter.classList.remove('pulse'), 1000);
+        }
+
+        // Reset to standard conditions
+        function resetToStandard() {
+            znConcentration.value = 1.0;
+            cuConcentration.value = 1.0;
+            temperature.value = 25;
+            updateDisplay();
+            
+            // Visual feedback
+            cellDiagram.classList.add('highlight');
+            setTimeout(() => cellDiagram.classList.remove('highlight'), 2000);
+        }
+
+        // Show reactions with animation
+        function showReactions() {
+            const reactions = [
+                document.getElementById('anode-reaction'),
+                document.getElementById('cathode-reaction'),
+                document.getElementById('overall-reaction')
+            ];
+            
+            reactions.forEach((reaction, index) => {
+                setTimeout(() => {
+                    reaction.classList.add('highlight');
+                    setTimeout(() => reaction.classList.remove('highlight'), 2000);
+                }, index * 500);
+            });
+        }
+
+        // Show help information
+        function showHelp() {
+            alert(`Interactive Daniel Cell Help:
+            
+1. Adjust the sliders to change concentrations and temperature
+2. The voltmeter shows the calculated EMF in real-time
+3. Hover over any cell component to learn more about it
+4. Click "Show Reactions" to highlight the chemical reactions
+5. "Reset" returns the cell to standard conditions (1M, 25°C)
+
+The cell follows the Nernst equation:
+Ecell = E°cell - (RT/nF)lnQ
+
+Where:
+- E°cell = Standard cell potential (1.10V for Daniel cell)
+- R = Gas constant (8.314 J/mol·K)
+- T = Temperature in Kelvin
+- n = Number of electrons transferred (2 for Zn/Cu)
+- F = Faraday's constant (96485 C/mol)
+- Q = Reaction quotient ([Zn²⁺]/[Cu²⁺])`);
+        }
+
+        // Toggle dark/light mode
+        function toggleTheme() {
+            document.body.classList.toggle('dark-mode');
+            themeToggle.classList.toggle('active');
+            
+            // Save preference to localStorage
+            const isDarkMode = document.body.classList.contains('dark-mode');
+            localStorage.setItem('darkMode', isDarkMode);
+        }
+
+        // Initialize the app
+        function init() {
+            // Set up event listeners
+            znConcentration.addEventListener('input', updateDisplay);
+            cuConcentration.addEventListener('input', updateDisplay);
+            temperature.addEventListener('input', updateDisplay);
+            resetBtn.addEventListener('click', resetToStandard);
+            showReactionsBtn.addEventListener('click', showReactions);
+            showHelpBtn.addEventListener('click', showHelp);
+            themeToggle.addEventListener('click', toggleTheme);
+            
+            // Initialize tooltips
+            initTooltips();
+            
+            // Check for saved theme preference
+            if (localStorage.getItem('darkMode') === 'true') {
+                document.body.classList.add('dark-mode');
+                themeToggle.classList.add('active');
+            }
+            
+            // Initial display update
+            updateDisplay();
+        }
+
+        // Start the app when DOM is loaded
+        document.addEventListener('DOMContentLoaded', init);
+    </script>
+</body>
+</html>
