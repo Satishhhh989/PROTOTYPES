@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Graph Visualizer</title>
+    <title>Graph Visualizer (made with ❤ by satish</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/theatre@0.5.2/dist/theatre.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/mathjs@9.4.4/lib/browser/math.js"></script>
@@ -43,6 +43,8 @@
             background: linear-gradient(-45deg, #ee7752, #e73c7e, #23a6d5, #23d5ab);
             background-size: 400% 400%;
             animation: gradient 15s ease infinite;
+            min-height: 100vh;
+            overflow-x: hidden;
         }
 
         @keyframes gradient {
@@ -67,12 +69,21 @@
             -webkit-backdrop-filter: blur(10px);
             box-shadow: var(--shadow);
             z-index: 100;
+            position: sticky;
+            top: 0;
         }
 
         .logo {
             font-size: 1.5rem;
             font-weight: bold;
             color: var(--primary-color);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .logo-icon {
+            font-size: 1.8rem;
         }
 
         .nav-links {
@@ -130,10 +141,11 @@
             flex: 1;
             padding: 1rem;
             gap: 1rem;
+            overflow: auto;
         }
 
         .sidebar {
-            width: 250px;
+            width: 280px;
             background-color: var(--card-bg);
             backdrop-filter: blur(10px);
             -webkit-backdrop-filter: blur(10px);
@@ -141,6 +153,11 @@
             padding: 1rem;
             box-shadow: var(--shadow);
             overflow-y: auto;
+            transition: var(--transition);
+            position: sticky;
+            top: 80px;
+            align-self: flex-start;
+            max-height: calc(100vh - 100px);
         }
 
         .sidebar-title {
@@ -148,6 +165,23 @@
             margin-bottom: 1rem;
             color: var(--primary-color);
             text-align: center;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: sticky;
+            top: 0;
+            background-color: var(--card-bg);
+            padding: 0.5rem 0;
+            z-index: 1;
+        }
+
+        .sidebar-toggle {
+            background: none;
+            border: none;
+            font-size: 1.2rem;
+            cursor: pointer;
+            color: var(--text-color);
+            display: none;
         }
 
         .graph-buttons {
@@ -168,6 +202,9 @@
             text-align: left;
             position: relative;
             overflow: hidden;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
         }
 
         .graph-button:hover {
@@ -213,6 +250,7 @@
             display: flex;
             flex-direction: column;
             gap: 1rem;
+            min-width: 0;
         }
 
         .graph-controls {
@@ -225,11 +263,21 @@
             display: flex;
             flex-direction: column;
             gap: 1rem;
+            position: sticky;
+            top: 80px;
+            z-index: 1;
+        }
+
+        .controls-row {
+            display: flex;
+            gap: 0.5rem;
+            align-items: center;
         }
 
         .custom-input-container {
             display: flex;
             gap: 0.5rem;
+            flex: 1;
         }
 
         #equation-input {
@@ -249,7 +297,7 @@
             box-shadow: 0 0 0 2px rgba(67, 97, 238, 0.2);
         }
 
-        .plot-button, .ai-help-button {
+        .plot-button, .ai-help-button, .clear-button, .draw-button {
             padding: 0.75rem 1.5rem;
             border: none;
             border-radius: 0.5rem;
@@ -258,6 +306,7 @@
             transition: var(--transition);
             position: relative;
             overflow: hidden;
+            white-space: nowrap;
         }
 
         .plot-button {
@@ -280,10 +329,31 @@
             transform: translateY(-2px);
         }
 
+        .clear-button {
+            background-color: #6c757d;
+            color: white;
+        }
+
+        .clear-button:hover {
+            background-color: #5a6268;
+            transform: translateY(-2px);
+        }
+
+        .draw-button {
+            background-color: #4cc9f0;
+            color: white;
+        }
+
+        .draw-button:hover {
+            background-color: #3a9ec9;
+            transform: translateY(-2px);
+        }
+
         .coordinate-toggle {
             display: flex;
             gap: 1rem;
             align-items: center;
+            flex-wrap: wrap;
         }
 
         .toggle-label {
@@ -291,6 +361,28 @@
             align-items: center;
             gap: 0.5rem;
             cursor: pointer;
+            white-space: nowrap;
+        }
+
+        .graph-range-controls {
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+        }
+
+        .range-input {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .range-input input {
+            width: 60px;
+            padding: 0.5rem;
+            border: 1px solid rgba(67, 97, 238, 0.3);
+            border-radius: 0.25rem;
+            background-color: rgba(255, 255, 255, 0.1);
+            color: var(--text-color);
         }
 
         .graph-renderer {
@@ -301,7 +393,7 @@
             border-radius: 0.75rem;
             box-shadow: var(--shadow);
             position: relative;
-            overflow: hidden;
+            min-height: 600px; /* Increased height */
         }
 
         .graph-explanation {
@@ -311,6 +403,8 @@
             border-radius: 0.75rem;
             padding: 1rem;
             box-shadow: var(--shadow);
+            max-height: 200px;
+            overflow-y: auto;
         }
 
         .explanation-content {
@@ -330,6 +424,7 @@
             border-radius: 50%;
             border-top-color: var(--primary-color);
             animation: spin 1s ease-in-out infinite;
+            z-index: 10;
         }
 
         @keyframes spin {
@@ -370,15 +465,41 @@
             display: none;
         }
 
+        .history-title {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 0.5rem;
+        }
+
+        .clear-history {
+            background: none;
+            border: none;
+            color: var(--accent-color);
+            cursor: pointer;
+            font-size: 0.8rem;
+        }
+
         .history-item {
             padding: 0.5rem;
             border-bottom: 1px solid rgba(67, 97, 238, 0.1);
             cursor: pointer;
             transition: var(--transition);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
         }
 
         .history-item:hover {
             background-color: rgba(67, 97, 238, 0.1);
+        }
+
+        .history-item-remove {
+            color: var(--accent-color);
+            background: none;
+            border: none;
+            cursor: pointer;
+            padding: 0.2rem;
         }
 
         .save-button {
@@ -393,21 +514,134 @@
             cursor: pointer;
             transition: var(--transition);
             z-index: 10;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
         }
 
         .save-button:hover {
             background-color: var(--secondary-color);
+        }
+
+        .graph-icon {
+            font-size: 1.2rem;
+        }
+
+        /* Drawing canvas styles */
+        .drawing-container {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 5;
+            display: none;
+        }
+
+        .drawing-controls {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            background-color: var(--card-bg);
+            padding: 0.5rem;
+            border-radius: 0.5rem;
+            box-shadow: var(--shadow);
+            z-index: 10;
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .drawing-controls button {
+            padding: 0.5rem;
+            border: none;
+            border-radius: 0.25rem;
+            background-color: var(--primary-color);
+            color: white;
+            cursor: pointer;
+        }
+
+        .drawing-controls button:hover {
+            background-color: var(--secondary-color);
+        }
+
+        .color-picker {
+            width: 30px;
+            height: 30px;
+            border: none;
+            cursor: pointer;
+        }
+
+        .line-width-picker {
+            width: 60px;
+        }
+
+        /* Responsive styles */
+        @media (max-width: 768px) {
+            .main-content {
+                flex-direction: column;
+                padding: 0.5rem;
+            }
+
+            .sidebar {
+                width: 100%;
+                max-height: 200px;
+                position: relative;
+                top: auto;
+            }
+
+            .sidebar-title {
+                font-size: 1rem;
+            }
+
+            .graph-button {
+                padding: 0.5rem;
+                font-size: 0.9rem;
+            }
+
+            .controls-row {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .custom-input-container {
+                flex-direction: column;
+            }
+
+            .plot-button, .ai-help-button, .clear-button, .draw-button {
+                width: 100%;
+            }
+
+            .sidebar-toggle {
+                display: block;
+            }
+
+            .sidebar.collapsed {
+                max-height: 40px;
+                overflow: hidden;
+            }
+
+            .graph-controls {
+                position: relative;
+                top: auto;
+            }
+
+            .graph-renderer {
+                min-height: 400px;
+            }
         }
     </style>
 </head>
 <body>
     <div class="app-container">
         <header class="navbar">
-            <div class="logo">Graph Visualizer (By Satish )</div>
+            <div class="logo">
+                <span class="logo-icon">📊</span>
+                <span>Graph Visualizer (Made with ❤ by Satish)</span>
+            </div>
             <nav class="nav-links">
                 <a href="#" class="nav-link active" id="home-link">Home</a>
-                <a href="#" class="nav-link" id="about-link">About Graphs</a>
-                <a href="#" class="nav-link" id="custom-link">Custom Relation</a>
+                <a href="#" class="nav-link" id="about-link">About</a>
+                <a href="#" class="nav-link" id="examples-link">Examples</a>
                 <button id="theme-toggle" class="theme-toggle">
                     <span class="toggle-icon">🌙</span>
                 </button>
@@ -415,8 +649,11 @@
         </header>
 
         <div class="main-content">
-            <aside class="sidebar">
-                <h2 class="sidebar-title">Graph Types</h2>
+            <aside class="sidebar" id="sidebar">
+                <h2 class="sidebar-title">
+                    <span>Graph Types</span>
+                    <button class="sidebar-toggle" id="sidebar-toggle">≡</button>
+                </h2>
                 <div class="graph-buttons" id="graph-buttons">
                     <!-- Buttons will be generated dynamically -->
                 </div>
@@ -424,24 +661,65 @@
 
             <div class="graph-container">
                 <div class="graph-controls">
-                    <div class="custom-input-container">
-                        <input type="text" id="equation-input" placeholder="Enter equation (e.g., y = sin(x), x² + y² = 1)">
-                        <button id="plot-button" class="plot-button">Plot</button>
-                        <button id="ai-help-button" class="ai-help-button">AI Help</button>
+                    <div class="controls-row">
+                        <div class="custom-input-container">
+                            <input type="text" id="equation-input" placeholder="Enter equation (e.g., y = sin(x), x² + y² = 1)">
+                            <button id="plot-button" class="plot-button">Plot</button>
+                            <button id="ai-help-button" class="ai-help-button">AI Help</button>
+                            <button id="clear-button" class="clear-button">Clear</button>
+                            <button id="draw-button" class="draw-button">Draw</button>
+                        </div>
                     </div>
-                    <div class="coordinate-toggle">
-                        <label class="toggle-label">
-                            <input type="radio" name="coordinate" value="cartesian" checked> Cartesian
-                        </label>
-                        <label class="toggle-label">
-                            <input type="radio" name="coordinate" value="polar"> Polar
-                        </label>
+                    <div class="controls-row">
+                        <div class="coordinate-toggle">
+                            <label class="toggle-label">
+                                <input type="radio" name="coordinate" value="cartesian" checked> Cartesian
+                            </label>
+                            <label class="toggle-label">
+                                <input type="radio" name="coordinate" value="polar"> Polar
+                            </label>
+                            <label class="toggle-label">
+                                <input type="radio" name="coordinate" value="parametric"> Parametric
+                            </label>
+                        </div>
+                    </div>
+                    <div class="controls-row">
+                        <div class="graph-range-controls">
+                            <div class="range-input">
+                                <label>X min:</label>
+                                <input type="number" id="x-min" value="-5" step="1">
+                            </div>
+                            <div class="range-input">
+                                <label>X max:</label>
+                                <input type="number" id="x-max" value="5" step="1">
+                            </div>
+                            <div class="range-input">
+                                <label>Y min:</label>
+                                <input type="number" id="y-min" value="-5" step="1">
+                            </div>
+                            <div class="range-input">
+                                <label>Y max:</label>
+                                <input type="number" id="y-max" value="5" step="1">
+                            </div>
+                        </div>
                     </div>
                 </div>
                 <div id="graph-renderer" class="graph-renderer">
                     <div class="loading-spinner" id="loading-spinner"></div>
                     <canvas id="graph-canvas"></canvas>
-                    <button class="save-button" id="save-button">Save as Image</button>
+                    <div class="drawing-container" id="drawing-container">
+                        <canvas id="drawing-canvas"></canvas>
+                        <div class="drawing-controls">
+                            <input type="color" id="color-picker" class="color-picker" value="#000000">
+                            <input type="range" id="line-width" class="line-width-picker" min="1" max="10" value="3">
+                            <button id="clear-drawing">Clear</button>
+                            <button id="exit-drawing">Exit</button>
+                        </div>
+                    </div>
+                    <button class="save-button" id="save-button">
+                        <span class="graph-icon">💾</span>
+                        <span>Save</span>
+                    </button>
                 </div>
                 <div class="graph-explanation" id="graph-explanation">
                     <h3>Graph Explanation</h3>
@@ -454,7 +732,10 @@
 
         <div class="tooltip" id="tooltip"></div>
         <div class="history-panel" id="history-panel">
-            <h3>History</h3>
+            <div class="history-title">
+                <h3>History</h3>
+                <button class="clear-history" id="clear-history">Clear All</button>
+            </div>
             <div id="history-items"></div>
         </div>
     </div>
@@ -465,92 +746,116 @@
             {
                 name: "Linear (y = mx + c)",
                 equation: "y = 2*x + 1",
-                explanation: "A linear function with slope m=2 and y-intercept c=1. Domain: all real numbers. Range: all real numbers. Continuous and differentiable everywhere. The graph is a straight line increasing from left to right."
+                explanation: "A linear function with slope m=2 and y-intercept c=1. Domain: all real numbers. Range: all real numbers. Continuous and differentiable everywhere. The graph is a straight line increasing from left to right.",
+                icon: "📈"
             },
             {
                 name: "Quadratic (Parabola)",
                 equation: "y = x^2",
-                explanation: "A quadratic function forming a parabola. Domain: all real numbers. Range: y ≥ 0. Vertex at (0,0). Symmetric about the y-axis (even function). Continuous and differentiable everywhere. Opens upward."
+                explanation: "A quadratic function forming a parabola. Domain: all real numbers. Range: y ≥ 0. Vertex at (0,0). Symmetric about the y-axis (even function). Continuous and differentiable everywhere. Opens upward.",
+                icon: "⛰️"
             },
             {
                 name: "Cubic",
                 equation: "y = x^3",
-                explanation: "A cubic function. Domain: all real numbers. Range: all real numbers. Point of inflection at (0,0). Symmetric about the origin (odd function). Continuous and differentiable everywhere. Increases throughout its domain."
+                explanation: "A cubic function. Domain: all real numbers. Range: all real numbers. Point of inflection at (0,0). Symmetric about the origin (odd function). Continuous and differentiable everywhere. Increases throughout its domain.",
+                icon: "↗️"
             },
             {
                 name: "Exponential (y = a^x)",
                 equation: "y = 2^x",
-                explanation: "An exponential function with base 2. Domain: all real numbers. Range: y > 0. Horizontal asymptote at y=0. Continuous and differentiable everywhere. Rapidly increasing as x increases."
+                explanation: "An exponential function with base 2. Domain: all real numbers. Range: y > 0. Horizontal asymptote at y=0. Continuous and differentiable everywhere. Rapidly increasing as x increases.",
+                icon: "🚀"
             },
             {
                 name: "Logarithmic (y = log(x))",
                 equation: "y = log(x)",
-                explanation: "A logarithmic function (natural log). Domain: x > 0. Range: all real numbers. Vertical asymptote at x=0. Continuous and differentiable on its domain. Increases slowly as x increases."
+                explanation: "A logarithmic function (natural log). Domain: x > 0. Range: all real numbers. Vertical asymptote at x=0. Continuous and differentiable on its domain. Increases slowly as x increases.",
+                icon: "📉"
             },
             {
                 name: "Sine Function",
                 equation: "y = sin(x)",
-                explanation: "The sine function. Domain: all real numbers. Range: -1 ≤ y ≤ 1. Periodic with period 2π. Odd function (symmetric about origin). Continuous and differentiable everywhere. Oscillates between -1 and 1."
+                explanation: "The sine function. Domain: all real numbers. Range: -1 ≤ y ≤ 1. Periodic with period 2π. Odd function (symmetric about origin). Continuous and differentiable everywhere. Oscillates between -1 and 1.",
+                icon: "🌊"
             },
             {
                 name: "Cosine Function",
                 equation: "y = cos(x)",
-                explanation: "The cosine function. Domain: all real numbers. Range: -1 ≤ y ≤ 1. Periodic with period 2π. Even function (symmetric about y-axis). Continuous and differentiable everywhere. Oscillates between -1 and 1."
+                explanation: "The cosine function. Domain: all real numbers. Range: -1 ≤ y ≤ 1. Periodic with period 2π. Even function (symmetric about y-axis). Continuous and differentiable everywhere. Oscillates between -1 and 1.",
+                icon: "🌊"
             },
             {
                 name: "Tangent Function",
                 equation: "y = tan(x)",
-                explanation: "The tangent function. Domain: x ≠ π/2 + kπ for any integer k. Range: all real numbers. Periodic with period π. Odd function. Discontinuous at x = π/2 + kπ. Vertical asymptotes at points of discontinuity."
+                explanation: "The tangent function. Domain: x ≠ π/2 + kπ for any integer k. Range: all real numbers. Periodic with period π. Odd function. Discontinuous at x = π/2 + kπ. Vertical asymptotes at points of discontinuity.",
+                icon: "〰️"
             },
             {
                 name: "Absolute Value",
                 equation: "y = |x|",
-                explanation: "The absolute value function. Domain: all real numbers. Range: y ≥ 0. Vertex at (0,0). Symmetric about the y-axis. Continuous everywhere but not differentiable at x=0. V-shaped graph."
+                explanation: "The absolute value function. Domain: all real numbers. Range: y ≥ 0. Vertex at (0,0). Symmetric about the y-axis. Continuous everywhere but not differentiable at x=0. V-shaped graph.",
+                icon: "🔺"
             },
             {
                 name: "Square Root",
                 equation: "y = sqrt(x)",
-                explanation: "The square root function. Domain: x ≥ 0. Range: y ≥ 0. Continuous on its domain. Differentiable for x > 0. Starts at (0,0) and increases at a decreasing rate."
+                explanation: "The square root function. Domain: x ≥ 0. Range: y ≥ 0. Continuous on its domain. Differentiable for x > 0. Starts at (0,0) and increases at a decreasing rate.",
+                icon: "√"
             },
             {
                 name: "Reciprocal",
                 equation: "y = 1/x",
-                explanation: "The reciprocal function. Domain: x ≠ 0. Range: y ≠ 0. Symmetric about the origin (odd function). Discontinuous at x=0. Vertical asymptote at x=0, horizontal asymptote at y=0."
+                explanation: "The reciprocal function. Domain: x ≠ 0. Range: y ≠ 0. Symmetric about the origin (odd function). Discontinuous at x=0. Vertical asymptote at x=0, horizontal asymptote at y=0.",
+                icon: "↕️"
             },
             {
                 name: "Circle",
                 equation: "x^2 + y^2 = 1",
-                explanation: "A circle with radius 1 centered at the origin. Domain: -1 ≤ x ≤ 1. Range: -1 ≤ y ≤ 1. Symmetric about both axes and the origin. Continuous but not a function (fails vertical line test)."
+                explanation: "A circle with radius 1 centered at the origin. Domain: -1 ≤ x ≤ 1. Range: -1 ≤ y ≤ 1. Symmetric about both axes and the origin. Continuous but not a function (fails vertical line test).",
+                icon: "🔵"
             },
             {
                 name: "Hyperbola",
                 equation: "x^2 - y^2 = 1",
-                explanation: "A rectangular hyperbola. Domain: x ≤ -1 or x ≥ 1. Range: all real numbers. Symmetric about both axes and the origin. Two separate branches. Asymptotes at y = ±x."
+                explanation: "A rectangular hyperbola. Domain: x ≤ -1 or x ≥ 1. Range: all real numbers. Symmetric about both axes and the origin. Two separate branches. Asymptotes at y = ±x.",
+                icon: "⤵️⤴️"
             },
             {
                 name: "Ellipse",
                 equation: "x^2/4 + y^2/9 = 1",
-                explanation: "An ellipse centered at origin. Domain: -2 ≤ x ≤ 2. Range: -3 ≤ y ≤ 3. Symmetric about both axes. Semi-major axis 3 (vertical), semi-minor axis 2 (horizontal)."
+                explanation: "An ellipse centered at origin. Domain: -2 ≤ x ≤ 2. Range: -3 ≤ y ≤ 3. Symmetric about both axes. Semi-major axis 3 (vertical), semi-minor axis 2 (horizontal).",
+                icon: "🥚"
             },
             {
                 name: "Step Function (Floor)",
                 equation: "y = floor(x)",
-                explanation: "The floor function. Domain: all real numbers. Range: all integers. Discontinuous at all integer values. Constant between integers with jumps at integers. Also called the greatest integer function."
+                explanation: "The floor function. Domain: all real numbers. Range: all integers. Discontinuous at all integer values. Constant between integers with jumps at integers. Also called the greatest integer function.",
+                icon: "📶"
             },
             {
                 name: "Piecewise Function",
                 equation: "y = { x^2 if x < 0, x if x >= 0 }",
-                explanation: "A piecewise function combining a quadratic and linear part. Domain: all real numbers. Range: y ≥ 0. Continuous at x=0 but not differentiable there. Smooth for x < 0 (parabola), linear for x ≥ 0."
+                explanation: "A piecewise function combining a quadratic and linear part. Domain: all real numbers. Range: y ≥ 0. Continuous at x=0 but not differentiable there. Smooth for x < 0 (parabola), linear for x ≥ 0.",
+                icon: "↔️"
             },
             {
                 name: "Lissajous Curve",
                 equation: "x = sin(3*t), y = cos(2*t)",
-                explanation: "A parametric Lissajous curve. Closed curve that repeats every 2π. Symmetric about both axes. Number of lobes depends on frequency ratio (here 3:2). Used in physics and engineering."
+                explanation: "A parametric Lissajous curve. Closed curve that repeats every 2π. Symmetric about both axes. Number of lobes depends on frequency ratio (here 3:2). Used in physics and engineering.",
+                icon: "🌀"
             },
             {
                 name: "Spiral",
                 equation: "x = t*cos(t), y = t*sin(t)",
-                explanation: "An Archimedean spiral. Parametric equations using polar-like coordinates. Domain: all real t. Range: unbounded. Continuous and smooth. Distance between turns remains constant."
+                explanation: "An Archimedean spiral. Parametric equations using polar-like coordinates. Domain: all real t. Range: unbounded. Continuous and smooth. Distance between turns remains constant.",
+                icon: "🌀"
+            },
+            {
+                name: "Own Drawing",
+                equation: "freehand",
+                explanation: "Draw your own graph freehand on the canvas. Use different colors and line widths to create custom visualizations.",
+                icon: "✏️"
             }
         ];
 
@@ -559,6 +864,8 @@
         const equationInput = document.getElementById('equation-input');
         const plotButton = document.getElementById('plot-button');
         const aiHelpButton = document.getElementById('ai-help-button');
+        const clearButton = document.getElementById('clear-button');
+        const drawButton = document.getElementById('draw-button');
         const graphRenderer = document.getElementById('graph-renderer');
         const explanationContent = document.getElementById('explanation-content');
         const themeToggle = document.getElementById('theme-toggle');
@@ -567,52 +874,75 @@
         const saveButton = document.getElementById('save-button');
         const historyPanel = document.getElementById('history-panel');
         const historyItems = document.getElementById('history-items');
+        const clearHistoryButton = document.getElementById('clear-history');
         const coordinateRadios = document.querySelectorAll('input[name="coordinate"]');
         const canvas = document.getElementById('graph-canvas');
+        const xMinInput = document.getElementById('x-min');
+        const xMaxInput = document.getElementById('x-max');
+        const yMinInput = document.getElementById('y-min');
+        const yMaxInput = document.getElementById('y-max');
+        const sidebar = document.getElementById('sidebar');
+        const sidebarToggle = document.getElementById('sidebar-toggle');
+        const drawingContainer = document.getElementById('drawing-container');
+        const drawingCanvas = document.getElementById('drawing-canvas');
+        const colorPicker = document.getElementById('color-picker');
+        const lineWidthPicker = document.getElementById('line-width');
+        const clearDrawingButton = document.getElementById('clear-drawing');
+        const exitDrawingButton = document.getElementById('exit-drawing');
 
         // Three.js variables
-        let scene, camera, renderer, graph;
-        let is3D = false;
+        let scene, camera, renderer, graph, axesHelper;
         let currentEquation = '';
         let equationHistory = [];
+        let currentGraphType = 'cartesian';
+        let graphRange = {
+            xMin: -5,
+            xMax: 5,
+            yMin: -5,
+            yMax: 5
+        };
+
+        // Drawing variables
+        let isDrawing = false;
+        let drawingContext;
+        let lastX = 0;
+        let lastY = 0;
 
         // Initialize the application
         function init() {
             setupGraphButtons();
             setupEventListeners();
             initThreeJS();
+            initDrawingCanvas();
             renderDefaultGraph();
+            loadHistory();
+            loadThemePreference();
+            handleResize(); // Initialize sizing
         }
 
         // Create buttons for each graph type
         function setupGraphButtons() {
-            graphTypes.forEach((graphType, index) => {
+            graphTypes.forEach((graphType) => {
                 const button = document.createElement('button');
                 button.className = 'graph-button';
-                button.textContent = graphType.name;
+                button.innerHTML = `<span class="graph-icon">${graphType.icon}</span> ${graphType.name}`;
                 button.dataset.equation = graphType.equation;
                 button.dataset.explanation = graphType.explanation;
                 
                 // Add tooltip hover effect
                 button.addEventListener('mouseenter', (e) => {
-                    tooltip.textContent = `Plot: ${graphType.equation}`;
-                    tooltip.style.left = `${e.pageX + 10}px`;
-                    tooltip.style.top = `${e.pageY + 10}px`;
-                    tooltip.style.opacity = '1';
+                    showTooltip(`Plot: ${graphType.equation}`, e);
                 });
                 
-                button.addEventListener('mouseleave', () => {
-                    tooltip.style.opacity = '0';
-                });
-                
-                button.addEventListener('mousemove', (e) => {
-                    tooltip.style.left = `${e.pageX + 10}px`;
-                    tooltip.style.top = `${e.pageY + 10}px`;
-                });
+                button.addEventListener('mouseleave', hideTooltip);
                 
                 button.addEventListener('click', () => {
-                    equationInput.value = graphType.equation;
-                    plotGraph(graphType.equation, graphType.explanation);
+                    if (graphType.name === "Own Drawing") {
+                        startDrawing();
+                    } else {
+                        equationInput.value = graphType.equation;
+                        plotGraph(graphType.equation, graphType.explanation);
+                    }
                 });
                 
                 graphButtonsContainer.appendChild(button);
@@ -621,29 +951,16 @@
 
         // Set up event listeners
         function setupEventListeners() {
-            plotButton.addEventListener('click', () => {
-                const equation = equationInput.value.trim();
-                if (equation) {
-                    plotGraph(equation);
-                    addToHistory(equation);
-                }
-            });
+            plotButton.addEventListener('click', handlePlot);
             
-            aiHelpButton.addEventListener('click', () => {
-                const equation = equationInput.value.trim();
-                if (equation) {
-                    getAIHelp(equation);
-                }
-            });
+            aiHelpButton.addEventListener('click', handleAIHelp);
+            
+            clearButton.addEventListener('click', clearGraph);
+            
+            drawButton.addEventListener('click', startDrawing);
             
             equationInput.addEventListener('keypress', (e) => {
-                if (e.key === 'Enter') {
-                    const equation = equationInput.value.trim();
-                    if (equation) {
-                        plotGraph(equation);
-                        addToHistory(equation);
-                    }
-                }
+                if (e.key === 'Enter') handlePlot();
             });
             
             themeToggle.addEventListener('click', toggleTheme);
@@ -653,24 +970,223 @@
             // Coordinate system toggle
             coordinateRadios.forEach(radio => {
                 radio.addEventListener('change', () => {
+                    currentGraphType = radio.value;
                     if (currentEquation) {
                         plotGraph(currentEquation);
                     }
                 });
             });
             
-            // Show history panel when hovering over custom input
-            equationInput.addEventListener('focus', () => {
-                if (equationHistory.length > 0) {
-                    historyPanel.style.display = 'block';
-                }
+            // Range inputs
+            [xMinInput, xMaxInput, yMinInput, yMaxInput].forEach(input => {
+                input.addEventListener('change', updateGraphRange);
             });
             
+            // Show history panel when focusing input
+            equationInput.addEventListener('focus', showHistoryPanel);
             equationInput.addEventListener('blur', () => {
-                setTimeout(() => {
-                    historyPanel.style.display = 'none';
-                }, 200);
+                setTimeout(hideHistoryPanel, 200);
             });
+            
+            clearHistoryButton.addEventListener('click', clearHistory);
+            
+            // Sidebar toggle for mobile
+            sidebarToggle.addEventListener('click', toggleSidebar);
+            
+            // Window resize
+            window.addEventListener('resize', handleResize);
+            
+            // Drawing events
+            clearDrawingButton.addEventListener('click', clearDrawing);
+            exitDrawingButton.addEventListener('click', exitDrawing);
+        }
+
+        // Initialize drawing canvas
+        function initDrawingCanvas() {
+            drawingContext = drawingCanvas.getContext('2d');
+            drawingCanvas.width = graphRenderer.clientWidth;
+            drawingCanvas.height = graphRenderer.clientHeight;
+            
+            // Set up drawing event listeners
+            drawingCanvas.addEventListener('mousedown', startDrawingStroke);
+            drawingCanvas.addEventListener('mousemove', drawStroke);
+            drawingCanvas.addEventListener('mouseup', endDrawingStroke);
+            drawingCanvas.addEventListener('mouseout', endDrawingStroke);
+            
+            // Touch support
+            drawingCanvas.addEventListener('touchstart', handleTouchStart);
+            drawingCanvas.addEventListener('touchmove', handleTouchMove);
+            drawingCanvas.addEventListener('touchend', handleTouchEnd);
+        }
+
+        // Handle touch start
+        function handleTouchStart(e) {
+            e.preventDefault();
+            const touch = e.touches[0];
+            const mouseEvent = new MouseEvent('mousedown', {
+                clientX: touch.clientX,
+                clientY: touch.clientY
+            });
+            drawingCanvas.dispatchEvent(mouseEvent);
+        }
+
+        // Handle touch move
+        function handleTouchMove(e) {
+            e.preventDefault();
+            const touch = e.touches[0];
+            const mouseEvent = new MouseEvent('mousemove', {
+                clientX: touch.clientX,
+                clientY: touch.clientY
+            });
+            drawingCanvas.dispatchEvent(mouseEvent);
+        }
+
+        // Handle touch end
+        function handleTouchEnd(e) {
+            e.preventDefault();
+            const mouseEvent = new MouseEvent('mouseup');
+            drawingCanvas.dispatchEvent(mouseEvent);
+        }
+
+        // Start drawing stroke
+        function startDrawingStroke(e) {
+            isDrawing = true;
+            [lastX, lastY] = getCanvasCoordinates(e);
+        }
+
+        // Draw stroke
+        function drawStroke(e) {
+            if (!isDrawing) return;
+            
+            const [x, y] = getCanvasCoordinates(e);
+            
+            drawingContext.strokeStyle = colorPicker.value;
+            drawingContext.lineWidth = lineWidthPicker.value;
+            drawingContext.lineJoin = 'round';
+            drawingContext.lineCap = 'round';
+            
+            drawingContext.beginPath();
+            drawingContext.moveTo(lastX, lastY);
+            drawingContext.lineTo(x, y);
+            drawingContext.stroke();
+            
+            [lastX, lastY] = [x, y];
+        }
+
+        // End drawing stroke
+        function endDrawingStroke() {
+            isDrawing = false;
+        }
+
+        // Get canvas coordinates from event
+        function getCanvasCoordinates(e) {
+            const rect = drawingCanvas.getBoundingClientRect();
+            const scaleX = drawingCanvas.width / rect.width;
+            const scaleY = drawingCanvas.height / rect.height;
+            
+            return [
+                (e.clientX - rect.left) * scaleX,
+                (e.clientY - rect.top) * scaleY
+            ];
+        }
+
+        // Clear drawing
+        function clearDrawing() {
+            drawingContext.clearRect(0, 0, drawingCanvas.width, drawingCanvas.height);
+        }
+
+        // Exit drawing mode
+        function exitDrawing() {
+            drawingContainer.style.display = 'none';
+            plotButton.disabled = false;
+            aiHelpButton.disabled = false;
+            clearButton.disabled = false;
+            drawButton.textContent = 'Draw';
+            
+            // Update explanation
+            explanationContent.innerHTML = `
+                <strong>Freehand Drawing</strong><br><br>
+                Your custom drawing has been saved. You can continue plotting mathematical functions or start a new drawing.
+            `;
+        }
+
+        // Start drawing mode
+        function startDrawing() {
+            drawingContainer.style.display = 'block';
+            plotButton.disabled = true;
+            aiHelpButton.disabled = true;
+            clearButton.disabled = true;
+            drawButton.textContent = 'Drawing...';
+            
+            // Update explanation
+            explanationContent.innerHTML = `
+                <strong>Freehand Drawing Mode</strong><br><br>
+                Draw your own graph on the canvas. Use the controls to change color and line width.
+                Click "Clear" to start over or "Exit" to return to normal graphing mode.
+            `;
+            
+            // Resize canvas if needed
+            drawingCanvas.width = graphRenderer.clientWidth;
+            drawingCanvas.height = graphRenderer.clientHeight;
+        }
+
+        // Handle plot button click
+        function handlePlot() {
+            const equation = equationInput.value.trim();
+            if (equation) {
+                plotGraph(equation);
+                addToHistory(equation);
+            }
+        }
+
+        // Handle AI help button click
+        function handleAIHelp() {
+            const equation = equationInput.value.trim();
+            if (equation) {
+                getAIHelp(equation);
+            }
+        }
+
+        // Handle window resize
+        function handleResize() {
+            // Update Three.js renderer size
+            if (camera && renderer) {
+                const width = graphRenderer.clientWidth;
+                const height = graphRenderer.clientHeight;
+                
+                camera.aspect = width / height;
+                camera.updateProjectionMatrix();
+                renderer.setSize(width, height);
+            }
+            
+            // Adjust sidebar height
+            const headerHeight = document.querySelector('.navbar').offsetHeight;
+            const sidebar = document.getElementById('sidebar');
+            sidebar.style.maxHeight = `calc(100vh - ${headerHeight + 20}px)`;
+            
+            // Resize drawing canvas if in drawing mode
+            if (drawingContainer.style.display === 'block') {
+                drawingCanvas.width = graphRenderer.clientWidth;
+                drawingCanvas.height = graphRenderer.clientHeight;
+            }
+        }
+
+        // Toggle sidebar visibility
+        function toggleSidebar() {
+            sidebar.classList.toggle('collapsed');
+        }
+
+        // Show tooltip
+        function showTooltip(text, event) {
+            tooltip.textContent = text;
+            tooltip.style.left = `${event.pageX + 10}px`;
+            tooltip.style.top = `${event.pageY + 10}px`;
+            tooltip.style.opacity = '1';
+        }
+
+        // Hide tooltip
+        function hideTooltip() {
+            tooltip.style.opacity = '0';
         }
 
         // Initialize Three.js
@@ -680,23 +1196,22 @@
             scene.background = new THREE.Color(0x000000);
             
             // Set up the camera
-            camera = new THREE.PerspectiveCamera(75, graphRenderer.clientWidth / graphRenderer.clientHeight, 0.1, 1000);
+            const width = graphRenderer.clientWidth;
+            const height = graphRenderer.clientHeight;
+            camera = new THREE.PerspectiveCamera(75, width / height, 0.1, 1000);
             camera.position.z = 5;
             
             // Set up the renderer
-            renderer = new THREE.WebGLRenderer({ canvas, antialias: true });
-            renderer.setSize(graphRenderer.clientWidth, graphRenderer.clientHeight);
+            renderer = new THREE.WebGLRenderer({ 
+                canvas, 
+                antialias: true,
+                preserveDrawingBuffer: true // Required for saving canvas as image
+            });
+            renderer.setSize(width, height);
             
             // Add axes helper
-            const axesHelper = new THREE.AxesHelper(5);
+            axesHelper = new THREE.AxesHelper(5);
             scene.add(axesHelper);
-            
-            // Handle window resize
-            window.addEventListener('resize', () => {
-                camera.aspect = graphRenderer.clientWidth / graphRenderer.clientHeight;
-                camera.updateProjectionMatrix();
-                renderer.setSize(graphRenderer.clientWidth, graphRenderer.clientHeight);
-            });
         }
 
         // Plot a graph based on the equation
@@ -711,21 +1226,23 @@
             
             // Parse the equation
             try {
-                const selectedCoordinate = document.querySelector('input[name="coordinate"]:checked').value;
-                
-                if (selectedCoordinate === 'polar') {
-                    graph = createPolarGraph(equation);
-                } else {
-                    if (equation.includes('x =') && equation.includes('y =') && equation.includes(',')) {
-                        // Parametric equation
-                        graph = createParametricGraph(equation);
-                    } else if (equation.includes('=') && equation.includes('+') && (equation.includes('x^2') || equation.includes('y^2'))) {
-                        // Implicit equation (like circle, ellipse)
-                        graph = createImplicitGraph(equation);
-                    } else {
-                        // Standard y = f(x) equation
-                        graph = createFunctionGraph(equation);
-                    }
+                switch (currentGraphType) {
+                    case 'polar':
+                        graph = createPolarGraph(equation);
+                        break;
+                    case 'parametric':
+                        if (equation.includes('x =') && equation.includes('y =') && equation.includes(',')) {
+                            graph = createParametricGraph(equation);
+                        } else {
+                            throw new Error("Invalid parametric equation format. Use: x = f(t), y = g(t)");
+                        }
+                        break;
+                    default: // cartesian
+                        if (equation.includes('=') && equation.includes('+') && (equation.includes('x^2') || equation.includes('y^2'))) {
+                            graph = createImplicitGraph(equation);
+                        } else {
+                            graph = createFunctionGraph(equation);
+                        }
                 }
                 
                 scene.add(graph);
@@ -737,14 +1254,47 @@
                     explanationContent.innerHTML = `<strong>${equation}</strong><br><br>Graph plotted successfully.`;
                 }
                 
+                // Adjust camera to fit the graph
+                adjustCamera();
+                
                 // Animate
                 animate();
             } catch (error) {
                 console.error('Error plotting graph:', error);
-                explanationContent.innerHTML = `<strong>Error:</strong> Could not plot the equation "${equation}". Please check the syntax.`;
+                explanationContent.innerHTML = `<strong>Error:</strong> Could not plot the equation "${equation}". ${error.message}`;
             } finally {
                 showLoading(false);
             }
+        }
+
+        // Adjust camera to fit the graph
+        function adjustCamera() {
+            if (!graph) return;
+            
+            // Get the bounding box of the graph
+            const boundingBox = new THREE.Box3().setFromObject(graph);
+            
+            // If bounding box is empty (no points), use default range
+            if (boundingBox.isEmpty()) {
+                camera.position.z = 5;
+                return;
+            }
+            
+            // Calculate center and size of the bounding box
+            const center = boundingBox.getCenter(new THREE.Vector3());
+            const size = boundingBox.getSize(new THREE.Vector3());
+            
+            // Calculate the maximum dimension
+            const maxDim = Math.max(size.x, size.y, size.z);
+            const fov = camera.fov * (Math.PI / 180);
+            let cameraZ = Math.abs(maxDim / Math.sin(fov / 2));
+            
+            // Add some padding
+            cameraZ *= 1.2;
+            
+            // Position camera
+            camera.position.z = cameraZ;
+            camera.lookAt(center);
         }
 
         // Create a standard y = f(x) graph
@@ -757,10 +1307,13 @@
             const expr = equation.split('=')[1].trim();
             
             // Create points
-            for (let x = -5; x <= 5; x += 0.1) {
+            const step = (graphRange.xMax - graphRange.xMin) / 200;
+            for (let x = graphRange.xMin; x <= graphRange.xMax; x += step) {
                 try {
                     const y = math.evaluate(expr, { x });
-                    points.push(new THREE.Vector3(x, y, 0));
+                    if (isFinite(y) && y >= graphRange.yMin && y <= graphRange.yMax) {
+                        points.push(new THREE.Vector3(x, y, 0));
+                    }
                 } catch (e) {
                     // Skip points that can't be evaluated
                 }
@@ -782,11 +1335,19 @@
             const yExpr = parts[1].split('=')[1].trim();
             
             // Create points
-            for (let t = 0; t <= 2 * Math.PI; t += 0.05) {
+            const tMin = 0;
+            const tMax = 2 * Math.PI;
+            const step = (tMax - tMin) / 200;
+            
+            for (let t = tMin; t <= tMax; t += step) {
                 try {
                     const x = math.evaluate(xExpr, { t });
                     const y = math.evaluate(yExpr, { t });
-                    points.push(new THREE.Vector3(x, y, 0));
+                    if (isFinite(x) && isFinite(y) && 
+                        x >= graphRange.xMin && x <= graphRange.xMax && 
+                        y >= graphRange.yMin && y <= graphRange.yMax) {
+                        points.push(new THREE.Vector3(x, y, 0));
+                    }
                 } catch (e) {
                     // Skip points that can't be evaluated
                 }
@@ -800,15 +1361,22 @@
         function createImplicitGraph(equation) {
             const points = [];
             const geometry = new THREE.BufferGeometry();
-            const material = new THREE.PointsMaterial({ color: 0xffff00, size: 0.1 });
+            const material = new THREE.PointsMaterial({ 
+                color: 0xffff00, 
+                size: 0.1,
+                sizeAttenuation: false
+            });
             
             // Parse the equation (simple implementation)
             // This is a simplified version that works for basic equations like x² + y² = r²
-            const expr = equation.replace('^', '**').replace('=', '-(') + ')';
+            const expr = equation.replace(/\^/g, '**').replace('=', '-(') + ')';
             
             // Create points
-            for (let x = -5; x <= 5; x += 0.1) {
-                for (let y = -5; y <= 5; y += 0.1) {
+            const xStep = (graphRange.xMax - graphRange.xMin) / 100;
+            const yStep = (graphRange.yMax - graphRange.yMin) / 100;
+            
+            for (let x = graphRange.xMin; x <= graphRange.xMax; x += xStep) {
+                for (let y = graphRange.yMin; y <= graphRange.yMax; y += yStep) {
                     try {
                         const value = math.evaluate(expr, { x, y });
                         if (Math.abs(value) < 0.5) { // Threshold for "equality"
@@ -834,12 +1402,20 @@
             const expr = equation.split('=')[1].trim();
             
             // Create points
-            for (let theta = 0; theta <= 2 * Math.PI; theta += 0.05) {
+            const thetaMin = 0;
+            const thetaMax = 2 * Math.PI;
+            const step = (thetaMax - thetaMin) / 200;
+            
+            for (let theta = thetaMin; theta <= thetaMax; theta += step) {
                 try {
                     const r = math.evaluate(expr, { theta });
                     const x = r * Math.cos(theta);
                     const y = r * Math.sin(theta);
-                    points.push(new THREE.Vector3(x, y, 0));
+                    if (isFinite(x) && isFinite(y) && 
+                        x >= graphRange.xMin && x <= graphRange.xMax && 
+                        y >= graphRange.yMin && y <= graphRange.yMax) {
+                        points.push(new THREE.Vector3(x, y, 0));
+                    }
                 } catch (e) {
                     // Skip points that can't be evaluated
                 }
@@ -847,6 +1423,17 @@
             
             geometry.setFromPoints(points);
             return new THREE.Line(geometry, material);
+        }
+
+        // Clear the current graph
+        function clearGraph() {
+            if (graph) {
+                scene.remove(graph);
+                graph = null;
+            }
+            equationInput.value = '';
+            explanationContent.textContent = 'Select a graph type or enter a custom equation to see its properties.';
+            currentEquation = '';
         }
 
         // Animation loop
@@ -869,6 +1456,9 @@
             
             // Update Three.js scene background
             scene.background = new THREE.Color(isDark ? 0x121212 : 0x000000);
+            
+            // Save theme preference to localStorage
+            localStorage.setItem('themePreference', isDark ? 'dark' : 'light');
         }
 
         // Show/hide loading spinner
@@ -881,9 +1471,6 @@
             showLoading(true);
             
             try {
-                // In a real application, you would call the DeepSeek API here
-                // For this example, we'll simulate a response
-                
                 // Simulate API delay
                 await new Promise(resolve => setTimeout(resolve, 1500));
                 
@@ -932,6 +1519,7 @@
                     equationHistory.pop();
                 }
                 updateHistoryPanel();
+                saveHistory();
             }
         }
 
@@ -941,21 +1529,115 @@
             equationHistory.forEach((eq, index) => {
                 const item = document.createElement('div');
                 item.className = 'history-item';
-                item.textContent = eq;
-                item.addEventListener('click', () => {
-                    equationInput.value = eq;
-                    plotGraph(eq);
+                item.innerHTML = `
+                    <span>${eq}</span>
+                    <button class="history-item-remove" data-index="${index}">×</button>
+                `;
+                
+                item.addEventListener('click', (e) => {
+                    if (!e.target.classList.contains('history-item-remove')) {
+                        equationInput.value = eq;
+                        plotGraph(eq);
+                    }
                 });
+                
+                const removeBtn = item.querySelector('.history-item-remove');
+                removeBtn.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    removeFromHistory(index);
+                });
+                
                 historyItems.appendChild(item);
             });
+        }
+
+        // Remove item from history
+        function removeFromHistory(index) {
+            equationHistory.splice(index, 1);
+            updateHistoryPanel();
+            saveHistory();
+        }
+
+        // Clear history
+        function clearHistory() {
+            equationHistory = [];
+            updateHistoryPanel();
+            saveHistory();
+        }
+
+        // Show history panel
+        function showHistoryPanel() {
+            if (equationHistory.length > 0) {
+                historyPanel.style.display = 'block';
+            }
+        }
+
+        // Hide history panel
+        function hideHistoryPanel() {
+            historyPanel.style.display = 'none';
+        }
+
+        // Save history to localStorage
+        function saveHistory() {
+            localStorage.setItem('graphHistory', JSON.stringify(equationHistory));
+        }
+
+        // Load history from localStorage
+        function loadHistory() {
+            const savedHistory = localStorage.getItem('graphHistory');
+            if (savedHistory) {
+                equationHistory = JSON.parse(savedHistory);
+                updateHistoryPanel();
+            }
+        }
+
+        // Update graph range from inputs
+        function updateGraphRange() {
+            graphRange = {
+                xMin: parseFloat(xMinInput.value) || -5,
+                xMax: parseFloat(xMaxInput.value) || 5,
+                yMin: parseFloat(yMinInput.value) || -5,
+                yMax: parseFloat(yMaxInput.value) || 5
+            };
+            
+            if (currentEquation) {
+                plotGraph(currentEquation);
+            }
         }
 
         // Save graph as image
         function saveGraphAsImage() {
             const link = document.createElement('a');
-            link.download = `graph-${new Date().toISOString()}.png`;
-            link.href = canvas.toDataURL('image/png');
+            const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
+            link.download = `graph-${timestamp}.png`;
+            
+            // Create a temporary canvas to combine both graphs
+            const tempCanvas = document.createElement('canvas');
+            tempCanvas.width = canvas.width;
+            tempCanvas.height = canvas.height;
+            const tempCtx = tempCanvas.getContext('2d');
+            
+            // Draw Three.js canvas first
+            tempCtx.drawImage(canvas, 0, 0);
+            
+            // If in drawing mode, overlay the drawing canvas
+            if (drawingContainer.style.display === 'block') {
+                tempCtx.drawImage(drawingCanvas, 0, 0);
+            }
+            
+            // Use the combined canvas for download
+            link.href = tempCanvas.toDataURL('image/png');
             link.click();
+        }
+
+        // Load theme preference
+        function loadThemePreference() {
+            const savedTheme = localStorage.getItem('themePreference');
+            if (savedTheme === 'dark') {
+                document.body.classList.add('dark-mode');
+                themeToggle.querySelector('.toggle-icon').textContent = '☀️';
+                scene.background = new THREE.Color(0x121212);
+            }
         }
 
         // Initialize the app
